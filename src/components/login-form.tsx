@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,6 +8,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import FormButton from "./FormButton"
+import { LoaderCircle } from "lucide-react"
 
 type LoginFormProps = React.ComponentProps<"div"> & {
   submit: ({username, password} : { username: string; password: string}) => void;
@@ -16,10 +17,10 @@ type LoginFormProps = React.ComponentProps<"div"> & {
 
 export function LoginForm({ className, submit, ...props }: LoginFormProps) {
 
-  function handleSubmit(e: FormData) {
+  async function handleSubmit(e: FormData) {
     const username = e.get('username')?.toString() ?? ""
     const password = e.get('password')?.toString() ?? ""
-    submit({username, password})
+    await submit({username, password})
   }
 
   return (
@@ -55,9 +56,9 @@ export function LoginForm({ className, submit, ...props }: LoginFormProps) {
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  سجل الدخول
-                </Button>
+                <FormButton name="سجل الدخول">
+                  <LoaderCircle className="animate-spin text-[#988561]" />
+                </FormButton>
               </div>
             </div>
           </form>

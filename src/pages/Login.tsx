@@ -8,7 +8,9 @@ const Login = () => {
     if(username == "" || password == "")
       toast.error("أحد الحقول فارغة!")
     
+    
     else {
+      await new Promise((res) => setTimeout(res, 5000))
 
       let { error } = await supabase.auth.signInWithPassword({
         email: username + '@gmail.com',

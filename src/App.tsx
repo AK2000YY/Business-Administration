@@ -7,10 +7,12 @@ import Login from "./pages/Login";
 import TypesAdministrate from "./pages/TypesAdministrate";
 import WorksAdministrate from "./pages/WorksAdministrate";
 import Container from "./components/Container";
+import Loader from "./components/loader";
 
 const App = () => {
 
   const [session, setSession] = useState<Session | null>();
+  const [load, setLoad] = useState<boolean>(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,9 +23,12 @@ const App = () => {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
     })
+    setLoad(false)
     return () => subscription.unsubscribe()
   }, [])
 
+  if(load)
+    return <Loader />
 
   return (
       <Container>
