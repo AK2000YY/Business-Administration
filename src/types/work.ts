@@ -1,7 +1,9 @@
+import type { DeviceType } from "./device_type"
+
 type Work = {
-  id: string,
+  id?: string,
   device_name: string,
-  device_types: {type: string},
+  device_types: DeviceType,
   owning_entity: string,
   executing_entity: string,
   date_of_arrival:string,
