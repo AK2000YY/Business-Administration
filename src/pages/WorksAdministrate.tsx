@@ -31,7 +31,7 @@ const WorksAdministrate = () => {
     const getTypes = async () => {
       const { data, error } = await supabase
         .from('jobs')
-        .select('*, device_types(type)')
+        .select('*, device_types(*)')
       console.log(error)
       console.log(data)
       if(error)
@@ -96,7 +96,61 @@ const WorksAdministrate = () => {
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+    const formData = new FormData(e.currentTarget);
+    const arrival = arrivalDate?.toISOString() ?? ""
+    const delevery = delieveryDate?.toISOString() ?? ""
+    let data: any = {}
+    for (const [key, value] of formData.entries()) {
+      if(value.toString().trim() === "") {
+        toast.error("أحد الحقول فارغة!")
+        return
+      }
+      data[key] = value;
+    }
+    if(arrival.trim() == "" || delevery.trim() == ""){
+      toast.error("أحد الحقول فارغة!")
+      return
+    }
+    data['date_of_arrival'] = arrival
+    data['date_of_delivery'] = delevery
+    const { error } = await supabase
+      .from('jobs')
+      .insert([data])
+    console.log(error)
+    if(error)
+      toast.error("حدث خطأ ما!")
+    else
+      toast.success("تمت الإضافة")
+  }
+
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget);
+    const arrival = arrivalDate?.toISOString() ?? ""
+    const delevery = delieveryDate?.toISOString() ?? ""
+    let data: any = {}
+    for (const [key, value] of formData.entries()) {
+      if(value.toString().trim() === "") {
+        toast.error("أحد الحقول فارغة!")
+        return
+      }
+      data[key] = value;
+    }
+    if(arrival.trim() == "" || delevery.trim() == ""){
+      toast.error("أحد الحقول فارغة!")
+      return
+    }
+    data['date_of_arrival'] = arrival
+    data['date_of_delivery'] = delevery
+    const { error } = await supabase
+      .from('jobs')
+      .update(data)
+      .eq('id', data.id)
+    console.log(error)
+    if(error)
+      toast.error("حدث خطأ ما!")
+    else
+      toast.success("تم التعديل")
   }
 
   return (
@@ -118,25 +172,29 @@ const WorksAdministrate = () => {
             <Dialog>
                 <DialogTrigger asChild>
                   <Button
+                    onClick={() => {
+                      setArriavalDate(undefined)
+                      setDelieveryDate(undefined)
+                    }}
                   >
                       <Plus /> إضافة
                   </Button>
                 </DialogTrigger>
               <DialogContent className="min-w-fit">
-                <form onSubmit={() => {}}>
+                <form onSubmit={handleAdd}>
                   <DialogHeader>
-                    <DialogTitle>إضافة نوع جديد</DialogTitle>
-                    <DialogDescription>إملأ الحقول المطلوبة لإضافة نوع جديد</DialogDescription>
+                    <DialogTitle>إضافةبيانات جديدة</DialogTitle>
+                    <DialogDescription>إملأ الحقول المطلوبة لإضافة بيانات جديدة</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-2">
                     <div className="flex gap-x-2">
-                      <Label htmlFor="name">اسم الجهاز</Label>
-                      <Input id="name" name="name" placeholder="ادخل اسم الجهاز" />
+                      <Label htmlFor="device_name">اسم الجهاز</Label>
+                      <Input id="device_name" name="device_name" placeholder="ادخل اسم الجهاز" />
                     </div>
                     <div className="flex gap-x-2">
                       <div className="flex gap-x-2">
                         <Label>النوع</Label>
-                        <Select name="type">
+                        <Select name="device_type_id">
                           <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="اختر النوع" />
                           </SelectTrigger>
@@ -168,17 +226,17 @@ const WorksAdministrate = () => {
                       </div>
                     </div>
                     <div className="flex gap-x-2">
-                      <Label htmlFor="attach">المرفقات</Label>
-                      <Input id="attach" name="attach" placeholder="ادخل المرفقات" />
+                      <Label htmlFor="attachments">المرفقات</Label>
+                      <Input id="attachments" name="attachments" placeholder="ادخل المرفقات" />
                     </div>
                     <div className="flex gap-x-2">
                       <div className="flex gap-x-2">
-                        <Label htmlFor="owner">الجهة المالكة</Label>
-                        <Input id="owner" name="owner" placeholder="ادخل الجهة المالكة" />
+                        <Label htmlFor="owning_entity">الجهة المالكة</Label>
+                        <Input id="owning_entity" name="owning_entity" placeholder="ادخل الجهة المالكة" />
                       </div>
                       <div className="flex gap-x-2">
-                        <Label htmlFor="executer">الجهة المنفذة</Label>
-                        <Input id="executer" name="executer" placeholder="ادخل الجهة المنفذة" />
+                        <Label htmlFor="executing_entity">الجهة المنفذة</Label>
+                        <Input id="executing_entity" name="executing_entity" placeholder="ادخل الجهة المنفذة" />
                       </div>
                     </div>
                     <div className="flex gap-x-2">
@@ -249,18 +307,18 @@ const WorksAdministrate = () => {
                         <Input id="cost" name="cost" placeholder="ادخل التكلفة" />
                       </div>
                       <div className="flex gap-x-2">
-                        <Label htmlFor="phone">رقم الهاتف</Label>
-                        <Input id="phone" name="phone" placeholder="ادخل رقم الهاتف" />
+                        <Label htmlFor="phone_number">رقم الهاتف</Label>
+                        <Input id="phone_number" name="phone_number" placeholder="ادخل رقم الهاتف" />
                       </div>
                     </div>
                     <div className="flex gap-x-2">
                       <div className="flex gap-x-2">
-                        <Label htmlFor="os">نظام التشغيل</Label>
-                        <Input id="os" name="os" placeholder="ادخل اسم النظام" />
+                        <Label htmlFor="system_version">نظام التشغيل</Label>
+                        <Input id="system_version" name="system_version" placeholder="ادخل اسم النظام" />
                       </div>
                       <div className="flex gap-x-2">
-                        <Label htmlFor="password">كلمة السر</Label>
-                        <Input id="password" name="password" placeholder="ادخل كلمة السر" />
+                        <Label htmlFor="device_password">كلمة السر</Label>
+                        <Input id="device_password" name="device_password" placeholder="ادخل كلمة السر" />
                       </div>
                     </div>
                   </div>
@@ -320,79 +378,169 @@ const WorksAdministrate = () => {
                       <DeleteOrEdit ele={ele}>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="size-min">
+                                <Button 
+                                  className="size-min"
+                                  onClick={() => {
+                                    setArriavalDate(new Date(ele.date_of_arrival))
+                                    setDelieveryDate(new Date(ele.date_of_delivery))
+                                  }}
+                                >
                                     <Pencil />
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent>
-                            <form onSubmit={() => {}}>
-                              <DialogHeader>
-                                <DialogTitle>تعديل</DialogTitle>
-                                <DialogDescription>إملأ الحقول لتعديل {ele.device_name}</DialogDescription>
-                              </DialogHeader>
-                              <Input hidden name="id" defaultValue={ele.id}/>
-                              <div className="grid gap-4 py-2">
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
+                            <DialogContent className="min-w-fit">
+                              <form onSubmit={handleUpdate}>
+                                <DialogHeader>
+                                  <DialogTitle>تعديل البيانات</DialogTitle>
+                                  <DialogDescription>عدل الحقول التالية واحفظ التعديل</DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-2">
+                                  <input name="id" defaultValue={ele.id} hidden/>
+                                  <div className="flex gap-x-2">
+                                    <Label htmlFor="device_name">اسم الجهاز</Label>
+                                    <Input id="device_name" name="device_name" placeholder="ادخل اسم الجهاز" defaultValue={ele.device_name} />
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <div className="flex gap-x-2">
+                                      <Label>النوع</Label>
+                                      <Select name="device_type_id" defaultValue={ele.device_types.id}>
+                                        <SelectTrigger className="w-[180px]">
+                                          <SelectValue placeholder="اختر النوع" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectGroup>
+                                            <SelectLabel>الأنواع</SelectLabel>
+                                            {types.map(ele => 
+                                              <SelectItem key={ele.id} value={ele.id}>{ele.type}</SelectItem>
+                                            )}
+                                          </SelectGroup>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="flex gap-x-2">
+                                      <Label>الحالة</Label>
+                                      <Select name="status" defaultValue={ele.status}>
+                                        <SelectTrigger className="w-[180px]">
+                                          <SelectValue placeholder="اختر الحالة" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectGroup>
+                                            <SelectLabel>الحالات</SelectLabel>
+                                            {status.map(ele => 
+                                              <SelectItem key={ele} value={ele}>{ele}</SelectItem>
+                                            )}
+                                          </SelectGroup>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <Label htmlFor="attachments">المرفقات</Label>
+                                    <Input id="attachments" name="attachments" placeholder="ادخل المرفقات" defaultValue={ele.attachments}/>
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="owning_entity">الجهة المالكة</Label>
+                                      <Input id="owning_entity" name="owning_entity" placeholder="ادخل الجهة المالكة" defaultValue={ele.owning_entity}/>
+                                    </div>
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="executing_entity">الجهة المنفذة</Label>
+                                      <Input id="executing_entity" name="executing_entity" placeholder="ادخل الجهة المنفذة" defaultValue={ele.executing_entity}/>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <Label htmlFor="notes">الملاحظات</Label>
+                                    <Input id="notes" name="notes" placeholder="ادخل ملاحظاتك" defaultValue={ele.notes} />
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                  <div className="flex gap-x-2">
+                                    <div className="flex gap-x-2">
+                                      <Label className="px-1">
+                                        تاريخ الوصول
+                                      </Label>
+                                      <Popover open={arrivalOpen} onOpenChange={setArrivalOpen}>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            variant="outline"
+                                            id="date"
+                                            className="w-48 justify-between font-normal"
+                                          >
+                                            {arrivalDate ? arrivalDate.toLocaleDateString() : "اختر التاريخ"}
+                                            <ChevronDownIcon />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                          <Calendar
+                                            mode="single"
+                                            selected={arrivalDate}
+                                            captionLayout="dropdown"
+                                            onSelect={(date) => {
+                                              setArriavalDate(date)
+                                              setArrivalOpen(false)
+                                            }}
+                                          />
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
+                                    <div className="flex gap-x-2">
+                                      <Label className="px-1">
+                                        تاريخ التسليم
+                                      </Label>
+                                      <Popover open={delieveryOpen} onOpenChange={setDelieveryOpen}>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            variant="outline"
+                                            id="date"
+                                            className="w-48 justify-between font-normal"
+                                          >
+                                            {delieveryDate ? delieveryDate.toLocaleDateString() : "اختر التاريخ"}
+                                            <ChevronDownIcon />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                          <Calendar
+                                            mode="single"
+                                            selected={arrivalDate}
+                                            captionLayout="dropdown"
+                                            onSelect={(date) => {
+                                              setDelieveryDate(date)
+                                              setDelieveryOpen(false)
+                                            }}
+                                          />
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
+                                  </div>
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="cost">التكلفة</Label>
+                                      <Input id="cost" type="number" name="cost" placeholder="ادخل التكلفة" defaultValue={ele.cost}/>
+                                    </div>
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="phone_number">رقم الهاتف</Label>
+                                      <Input id="phone_number" name="phone_number" placeholder="ادخل رقم الهاتف" defaultValue={ele.phone_number}/>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-x-2">
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="system_version">نظام التشغيل</Label>
+                                      <Input id="system_version" name="system_version" placeholder="ادخل اسم النظام" defaultValue={ele.system_version}/>
+                                    </div>
+                                    <div className="flex gap-x-2">
+                                      <Label htmlFor="device_password">كلمة السر</Label>
+                                      <Input id="device_password" name="device_password" placeholder="ادخل كلمة السر" defaultValue={ele.device_password}/>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                                <div className="grid gap-3">
-                                  <Label htmlFor="name-1">النوع</Label>
-                                  <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.device_name}  />
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">إلغاء</Button>
-                                </DialogClose>
-                                <Button type="submit">تعديل</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="outline">إلغاء</Button>
+                                  </DialogClose>
+                                  <Button type="submit">تعديل</Button>
+                                </DialogFooter>
+                              </form>
+                            </DialogContent>
                         </Dialog>
                       </DeleteOrEdit>
                     </TableCell>
