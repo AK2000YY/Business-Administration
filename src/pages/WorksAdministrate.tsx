@@ -5,7 +5,7 @@ import FromServiceAdd from "@/components/FormServiceAdd"
 import FormServiceEdit from "@/components/FormServiceEdit"
 import Nav from "@/components/Nav"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import supabase from "@/lib/supabase"
@@ -51,76 +51,95 @@ const WorksAdministrate = () => {
         setTypes(data ?? [])
     }
 
-    // const deviceChannel = supabase
-    //     .channel('custom-all-channel')
-    //     .on(
-    //         'postgres_changes',
-    //         { event: '*', schema: 'public', table: 'jobs' },
-    //         async ({ eventType, old, new: newData }) => {
-    //             console.log(eventType)
-    //             switch (eventType) {
-    //                 case "INSERT":
-    //                 case "UPDATE": {
-    //                   const { data } = await supabase
-    //                     .from('jobs')
-    //                     .select('*, device_types(type), services(*)')
-    //                     .eq('id', newData.id)
-    //                     .single()
+    const deviceChannel = supabase
+        .channel('jobs-channel')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'jobs' },
+            async ({ eventType, old, new: newData }) => {
+                console.log(eventType)
+                switch (eventType) {
+                    case "INSERT":
+                    case "UPDATE": {
+                      const { data } = await supabase
+                        .from('jobs')
+                        .select('*, device_types(type), services(*)')
+                        .eq('id', newData.id)
+                        .single()
 
-    //                   if (data) {
-    //                     setWorks(prev =>
-    //                       prev.some(job => job.id === data.id)
-    //                         ? prev.map(job => job.id === data.id ? data : job)
-    //                         : [...prev, data]
-    //                     )
-    //                   }
-    //                   break;
-    //                 }
+                      if (data) {
+                        setWorks(prev =>
+                          prev.some(job => job.id === data.id)
+                            ? prev.map(job => job.id === data.id ? data : job)
+                            : [...prev, data]
+                        )
+                      }
+                      break;
+                    }
 
-    //                 case "DELETE": {
-    //                     const job: Work = old as Work
-    //                     setWorks(prev => prev.filter(ele => ele.id !== job.id))
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     )
-    //     .subscribe()
+                    case "DELETE": {
+                        const job: Work = old as Work
+                        setWorks(prev => prev.filter(ele => ele.id !== job.id))
+                        break;
+                    }
+                }
+            }
+        )
+        .subscribe()
     
-    // const serviceChannel = supabase.channel('custom-all-channel')
-    //   .on(
-    //     'postgres_changes',
-    //     { event: '*', schema: 'public', table: 'services' },
-    //     async ({ eventType, old, new: newData }) => {
-    //         console.log(eventType)
-    //         switch (eventType) {
-    //             case "INSERT": {
-    //                 const service: Service = newData as Service
-    //                 setTypes(prev => [...prev, deviceType])
-    //                 break;
-    //             }
-    //             case "UPDATE": {
-    //                 const service: Service = newData as Service
-    //                 setTypes(prev => prev.map(ele => ele.id === deviceType.id ? deviceType : ele))
-    //                 break;
-    //             }
-    //             case "DELETE": {
-    //                 const service: Service = old as Service
-    //                 setWorks(prev =>  )
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //   )
-    //   .subscribe()
+    const serviceChannel = supabase
+      .channel('services-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'services' },
+        async ({ eventType, old, new: newData }) => {
+            console.log(eventType)
+            switch (eventType) {
+                case "INSERT": {
+                    const service: Service = newData as Service
+                    setWorks(prev => prev.map(ele => {
+                      if(ele.id == service.job_id)
+                          return {
+                          ...ele,
+                          services: [...ele.services, service]
+                        }
+                      else 
+                        return ele
+                    }))
+                    break;
+                }
+                case "UPDATE": {
+                    const service: Service = newData as Service
+                    setWorks(prev => prev.map(ele => {
+                      return {
+                        ...ele,
+                        services: ele.services.map(src => src.id === service.id ? service : src)
+                      }
+                    }))
+                    break;
+                }
+                case "DELETE": {
+                    const service: Service = old as Service
+                    setWorks(prev => prev.map(ele => {
+                      return {
+                        ...ele,
+                        services: ele.services.filter(ser => ser.id != service.id)
+                      }
+                    }));
+                    break;
+                }
+            }
+        }
+      )
+      .subscribe()
 
 
-    // getDeviceTypes()
-    // getTypes()
-    // return () => {
-    //   deviceChannel.unsubscribe()
-    //   serviceChannel.unsubscribe()
-    // };
+    getDeviceTypes()
+    getTypes()
+    return () => {
+      deviceChannel.unsubscribe()
+      serviceChannel.unsubscribe()
+    };
   }, [])
 
 
