@@ -17,13 +17,14 @@ const App = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      setLoad(false)
     })
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      setLoad(false)
     })
-    setLoad(false)
     return () => subscription.unsubscribe()
   }, [])
 
