@@ -6,26 +6,29 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useEffect, useState, type ReactNode } from "react"
 import supabase from "@/lib/supabase"
 import { toast } from "sonner"
+import type { Service } from "@/types/service"
 
 type ELemetType = {
   id: string,
-  tableName: 'jobs' | 'device_types',
+  tableName: 'jobs' | 'device_types' | 'services',
   elementName: string
 }
 
 
 const DeleteOrEdit = ({children,ele}: {
   children?: ReactNode,
-  ele: Work | DeviceType
+  ele: Work | DeviceType | Service
 }) => {
 
   const [element, setElement] = useState<ELemetType>()
 
   useEffect(() => {
-    if('cost' in ele)
+    if('owning_entity' in ele)
       setElement({id: ele.id, tableName: 'jobs', elementName: ele.device_name})
-    else
+    else if('type' in ele)
       setElement({id: ele.id, tableName: 'device_types', elementName: ele?.type})
+    else
+      setElement({id: ele.id, tableName: 'services', elementName: ele.service})
   }, [])
 
   const handleDelete = async () => {
@@ -35,6 +38,8 @@ const DeleteOrEdit = ({children,ele}: {
       .eq('id', element!.id)
     if(error)
       toast.error("حدث خطأ ما!")
+    else
+      toast.success("تمت عملية الحذف بنجاح")
   }
 
   return (
@@ -42,7 +47,7 @@ const DeleteOrEdit = ({children,ele}: {
         
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button className="size-min bg-red-500 hover:bg-red-400">
+                <Button className="size-min bg-[#988561]">
                     <Trash />
                 </Button>
             </AlertDialogTrigger>
