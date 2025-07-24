@@ -1,4 +1,5 @@
 import DeleteOrEdit from "@/components/DeleteOrEdit"
+import Loader from "@/components/loader"
 import Nav from "@/components/Nav"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -13,6 +14,8 @@ import { toast } from "sonner"
 
 
 const TypesAdministrate = () => {
+  const [search, setSearch] = useState<string>('')
+  const [load, setLoading] = useState<boolean>(true)
   const [types, setTypes] = useState<DeviceType[]>([])
 
   useEffect(() => {
@@ -25,6 +28,7 @@ const TypesAdministrate = () => {
         toast.error("حدث خطأ ما!")
       else
         setTypes(data ?? [])
+      setLoading(false)
     }
 
     const channel = supabase
@@ -98,28 +102,39 @@ const TypesAdministrate = () => {
         toast.success("تم حفظ التعديلات")
     }
   }
+
+  const handleSearch = async(e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    const { data, error } = await supabase
+      .from('device_types')
+      .select('*')
+      .textSearch('type', search)
+    setTypes(data ?? [])
+    console.log('ak2', data)
+    if(error)
+      toast.error("شيء ما خاطىء!")
+    else
+      toast.success(`تم العثور على ${data.length} عنصر`)
+    setLoading(false)
+  }
   
   return (
     <div className="w-screen h-screen">
       <Nav>
-        <div className="flex gap-x-1">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>
-                    <Search /> بحث
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                {/* TO DO LATER */}
-              </DialogContent>
-            </Dialog>
+            <form className="flex gap-x-1 pr-12" onSubmit={handleSearch}>
+              <Input name="search" placeholder="ادخل ماتريد البحث عنه" value={search} onChange={(e) => setSearch(e.target.value)}/>
+              <Button>
+                  <Search />
+              </Button>
+            </form>
 
 
             <Dialog>
                 <DialogTrigger asChild>
                   <Button
                   >
-                      <Plus /> إضافة
+                      إضافة نوع جديد <Plus />
                   </Button>
                 </DialogTrigger>
               <DialogContent>
@@ -143,61 +158,65 @@ const TypesAdministrate = () => {
                 </form>
               </DialogContent>
             </Dialog>
-        </div>
       </Nav>
       <div className="p-3">
-        <Table>
-          <TableCaption>تصفح قائمة الأنواع</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-1/4">النوع</TableHead>
-                <TableHead className="w-1/4">تاريخ الإضافة</TableHead>
-                <TableHead className="w-1/4">تاريخ التعديل</TableHead>
-                <TableHead className="w-1/4">حذف أو تعديل</TableHead>
-              </TableRow>
-            </TableHeader>
-          <TableBody>
-          {types.map(ele => (
-            <TableRow key={ele.id}>
-                <TableCell className="w-1/4">{ele.type}</TableCell>
-                <TableCell className="w-1/4">{new Date(ele.created_at).toLocaleString('ar-EG')}</TableCell>
-                <TableCell className="w-1/4">{new Date(ele.updated_at).toLocaleString('ar-EG')}</TableCell>
-                <TableCell className="w-1/4">
-                  <DeleteOrEdit ele={ele}>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button className="size-min">
-                                <Pencil />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                        <form onSubmit={handleUpdate}>
-                          <DialogHeader>
-                            <DialogTitle>تعديل</DialogTitle>
-                            <DialogDescription>إملأ الحقول لتعديل {ele.type}</DialogDescription>
-                          </DialogHeader>
-                          <Input hidden name="id" defaultValue={ele.id}/>
-                          <div className="grid gap-4 py-2">
-                            <div className="grid gap-3">
-                              <Label htmlFor="name-1">النوع</Label>
-                              <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.type}  />
+        {load &&
+          <Loader /> 
+        }
+        {!load &&
+          <Table>
+            <TableCaption>تصفح قائمة الأنواع</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-1/4">النوع</TableHead>
+                  <TableHead className="w-1/4">تاريخ الإضافة</TableHead>
+                  <TableHead className="w-1/4">تاريخ التعديل</TableHead>
+                  <TableHead className="w-1/4">حذف أو تعديل</TableHead>
+                </TableRow>
+              </TableHeader>
+            <TableBody>
+            {types.map(ele => (
+              <TableRow key={ele.id}>
+                  <TableCell className="w-1/4">{ele.type}</TableCell>
+                  <TableCell className="w-1/4">{new Date(ele.created_at).toLocaleString('ar-EG')}</TableCell>
+                  <TableCell className="w-1/4">{new Date(ele.updated_at).toLocaleString('ar-EG')}</TableCell>
+                  <TableCell className="w-1/4">
+                    <DeleteOrEdit ele={ele}>
+                      <Dialog>
+                          <DialogTrigger asChild>
+                              <Button className="size-min">
+                                  <Pencil />
+                              </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                          <form onSubmit={handleUpdate}>
+                            <DialogHeader>
+                              <DialogTitle>تعديل</DialogTitle>
+                              <DialogDescription>إملأ الحقول لتعديل {ele.type}</DialogDescription>
+                            </DialogHeader>
+                            <Input hidden name="id" defaultValue={ele.id}/>
+                            <div className="grid gap-4 py-2">
+                              <div className="grid gap-3">
+                                <Label htmlFor="name-1">النوع</Label>
+                                <Input id="type" name="type" placeholder="ادخل النوع" defaultValue={ele.type}  />
+                              </div>
                             </div>
-                          </div>
-                          <DialogFooter>
-                            <DialogClose asChild>
-                              <Button variant="outline">إلغاء</Button>
-                            </DialogClose>
-                            <Button type="submit">تعديل</Button>
-                          </DialogFooter>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                  </DeleteOrEdit>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">إلغاء</Button>
+                              </DialogClose>
+                              <Button type="submit">تعديل</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </DeleteOrEdit>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        }
       </div>
     </div>
   )
