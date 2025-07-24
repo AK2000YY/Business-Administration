@@ -1,23 +1,15 @@
 import type { DeviceType } from "./device_type"
+import type { Service } from "./service";
 
 type Work = {
-  id?: string,
-  device_name: string,
-  device_types: DeviceType,
-  owning_entity: string,
-  executing_entity: string,
-  date_of_arrival:string,
-  date_of_delivery: string,
-  status: string,
-  cost: number,
-  attachments: string[],
-  notes: string,
-  phone_number: string,
-  device_password: string,
-  system_version: string,
-  created_at: string,
-  updated_at: string
-}
+  id: string;
+  device_name: string;
+  device_types: DeviceType;
+  owning_entity: string;
+  notes: string;
+  services: Service[];
+  serial: string;
+};
 
 
 export { type Work }
