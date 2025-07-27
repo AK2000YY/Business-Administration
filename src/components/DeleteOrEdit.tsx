@@ -47,7 +47,7 @@ const DeleteOrEdit = ({children,ele}: {
         
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button className="size-min bg-[#988561]">
+                <Button className="size-min bg-[#165D4E]">
                     <Trash />
                 </Button>
             </AlertDialogTrigger>
