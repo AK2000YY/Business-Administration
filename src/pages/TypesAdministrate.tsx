@@ -125,7 +125,7 @@ const TypesAdministrate = () => {
             <form className="flex gap-x-1 pr-12" onSubmit={handleSearch}>
               <Input name="search" placeholder="ادخل ماتريد البحث عنه" value={search} onChange={(e) => setSearch(e.target.value)}/>
               <Button
-                className="bg-[#988561]"
+                className="bg-[#165D4E]"
               >
                   <Search />
               </Button>
@@ -135,7 +135,7 @@ const TypesAdministrate = () => {
             <Dialog>
                 <DialogTrigger asChild>
                   <Button
-                    className="bg-[#988561]"
+                    className="bg-[#165D4E]"
                   >
                       إضافة نوع جديد <Plus />
                   </Button>
@@ -187,7 +187,7 @@ const TypesAdministrate = () => {
                     <DeleteOrEdit ele={ele}>
                       <Dialog>
                           <DialogTrigger asChild>
-                              <Button className="size-min bg-[#988561]">
+                              <Button className="size-min bg-[#165D4E]">
                                   <Pencil />
                               </Button>
                           </DialogTrigger>
