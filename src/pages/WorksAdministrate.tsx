@@ -259,17 +259,18 @@ const WorksAdministrate = () => {
   }
 
   return (
-     <div className="w-screen h-screen">
+     <div className="flex flex-col h-screen">
         <Nav>
             <form className="flex gap-x-1 pr-12" onSubmit={handleSearch}>
               <Input name="search" type="text" placeholder="ادخل ماتريد البحث عنه" value={search} onChange={(e) => setSearch(e.target.value)}/>
-              <Button>
+              <Button className="bg-[#988561]">
                   <Search />
               </Button>
             </form>
             <Dialog>
                 <DialogTrigger asChild>
                   <Button
+                    className="bg-[#988561]"
                   >
                       إضافة جهاز جديد <Plus />
                   </Button>
@@ -280,10 +281,10 @@ const WorksAdministrate = () => {
               />
             </Dialog>
       </Nav>
-        <div className="p-3">
+        <div className="flex-1 overflow-y-auto relative">
           <Table>
             <TableCaption>تصفح قائمة الأنواع</TableCaption>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
                 <TableHead className="w-1/14">الرقم التسلسلي</TableHead>
                 <TableHead className="w-1/14">اسم الجهاز</TableHead>

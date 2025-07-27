@@ -27,7 +27,7 @@ const Nav = ({children} : {
             <AlertDialog open={open} onOpenChange={setOpen}>
                 <AlertDialogTrigger asChild>
                     <Button 
-                    className="bg-red-600"
+                    className="bg-[#988561]"
                     >
                         <LogOut />
                     </Button>
@@ -55,7 +55,7 @@ const Nav = ({children} : {
             </AlertDialog>
             {children &&
                 <Button
-                    className="mr-1 bg-[#06332E]"
+                    className="mr-1 bg-[#988561]"
                     onClick={() => navigate('/')}
                 >
                     <House />
