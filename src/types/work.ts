@@ -18,7 +18,7 @@ type Work = {
   cpu_name?: string;
   model?: string;
   company?: string;
-  cpu: Cpu;
+  cpu?: Cpu;
   ram_type?: RamType;
   notes?: string;
 };
