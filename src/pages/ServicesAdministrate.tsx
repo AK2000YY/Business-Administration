@@ -288,9 +288,9 @@ const ServicesAdministrate = () => {
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { data, error } = await supabase
-      .from("jobs")
-      .select("*, device_types(*), services(*)")
-      .textSearch("tsv", search);
+      .from("services")
+      .select("*, passwords(*)")
+      .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
     setServices(data ?? []);
     console.log("ak2", data);
     if (error) toast.error("شيء ما خاطىء!");
