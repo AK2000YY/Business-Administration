@@ -246,15 +246,15 @@ const WorksAdministrate = () => {
       .eq("id", data["id"]);
     console.log(error);
     if (error) toast.error("حدث خطأ ما!");
-    else toast.success("تمت الإضافة");
+    else toast.success("تم التعديل");
   };
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { data, error } = await supabase
       .from("jobs")
-      .select("*, device_types(*), services(*)")
-      .textSearch("tsv", search);
+      .select("*, device_types(*)")
+      .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
     setWorks(data ?? []);
     console.log("ak2", data);
     if (error) toast.error("شيء ما خاطىء!");
