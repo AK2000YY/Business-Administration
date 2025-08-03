@@ -33,7 +33,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import supabase from "@/lib/supabase";
-import type { DeviceType } from "@/types/device_type";
 import { Pencil, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
