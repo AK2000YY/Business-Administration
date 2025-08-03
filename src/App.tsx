@@ -9,7 +9,6 @@ import WorksAdministrate from "./pages/WorksAdministrate";
 import Container from "./components/Container";
 import Loader from "./components/loader";
 import ServicesAdministrate from "./pages/ServicesAdministrate";
-import CpusAdministrate from "./pages/CpusAdministrate";
 import PasswordAdministrate from "./pages/PasswordAdministrate";
 
 const App = () => {
@@ -57,10 +56,6 @@ const App = () => {
           element={
             session ? <ServicesAdministrate /> : <Navigate to="/login" />
           }
-        />
-        <Route
-          path="/cpus"
-          element={session ? <CpusAdministrate /> : <Navigate to="/login" />}
         />
         <Route
           path="/passwords"
