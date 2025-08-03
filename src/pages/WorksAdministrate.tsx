@@ -36,22 +36,22 @@ const WorksAdministrate = () => {
   const [arrivalOpen, setArrivalOpen] = useState(false);
   const [arrivalDate, setArriavalDate] = useState<Date | undefined>(undefined);
 
-  useEffect(() => {
-    const getTypes = async () => {
-      setLoad(true);
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*, device_types(*)")
-        .order("created_at", { ascending: true })
-        .range(end - 9, end);
-      if (error) toast.error("حدث خطأ ما!");
-      else {
-        setWorks(data ?? []);
-        worksRef.current = data ?? [];
-        setLoad(false);
-      }
-    };
+  const getTypes = async () => {
+    setLoad(true);
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*, device_types(*)")
+      .order("created_at", { ascending: true })
+      .range(end - 9, end);
+    if (error) toast.error("حدث خطأ ما!");
+    else {
+      setWorks(data ?? []);
+      worksRef.current = data ?? [];
+      setLoad(false);
+    }
+  };
 
+  useEffect(() => {
     const getNewType = async (id: string = "") => {
       const { data, error } = await supabase
         .from("jobs")
@@ -251,13 +251,20 @@ const WorksAdministrate = () => {
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("*, device_types(*)")
-      .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
-    setWorks(data ?? []);
-    console.log("ak2", data);
-    if (error) toast.error("شيء ما خاطىء!");
+    setLoad(true);
+    if (search.length != 0) {
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*, device_types(*)")
+        .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
+      setWorks(data ?? []);
+      worksRef.current = data ?? [];
+      setLoad(false);
+      console.log("ak2", data);
+      if (error) toast.error("شيء ما خاطىء!");
+    } else {
+      await getTypes();
+    }
   };
 
   const handleDownload = async (attachment: string) => {
