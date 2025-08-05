@@ -25,7 +25,6 @@ import { toast } from "sonner";
 
 const ServicesAdministrate = () => {
   const { id } = useParams();
-  const [addFormKey, setAddFormKey] = useState<number>(0);
 
   const [search, setSearch] = useState<string>("");
   const [services, setServices] = useState<Service[]>([]);
@@ -149,23 +148,6 @@ const ServicesAdministrate = () => {
       }
     }
 
-    if ("password_num" in data) {
-      const password = await supabase
-        .from("passwords")
-        .select("*")
-        .eq("number", data["password_num"]);
-
-      console.log(password);
-
-      if (password.error || password.data.length == 0) {
-        toast.error("تأكد من رقم كلمة السر");
-        return;
-      } else {
-        delete data.password_num;
-        data["password_id"] = password.data[0].id;
-      }
-    }
-
     //file  uploade
     const fileInput = form.elements.namedItem("attach") as HTMLInputElement;
     const file = fileInput?.files?.[0];
@@ -218,23 +200,6 @@ const ServicesAdministrate = () => {
       if (!data[key]) {
         toast.error("أحد الحقول فارغة!");
         return;
-      }
-    }
-
-    if ("password_num" in data) {
-      const password = await supabase
-        .from("passwords")
-        .select("*")
-        .eq("number", data["password_num"]);
-
-      console.log(password);
-
-      if (password.error || password.data.length == 0) {
-        toast.error("تأكد من رقم كلمة السر");
-        return;
-      } else {
-        delete data.password_num;
-        data["password_id"] = password.data[0].id;
       }
     }
 
@@ -323,14 +288,11 @@ const ServicesAdministrate = () => {
         </form>
         <Dialog>
           <DialogTrigger asChild>
-            <Button
-              className="bg-[#165D4E]"
-              onClick={() => setAddFormKey((prev) => (prev + 1) % 2)}
-            >
+            <Button className="bg-[#165D4E]">
               إضافة تخديم <Plus />
             </Button>
           </DialogTrigger>
-          <FromServiceAdd key={addFormKey} onAdd={handleAdd} />
+          <FromServiceAdd onAdd={handleAdd} />
         </Dialog>
       </Nav>
       <div className="flex-1 overflow-y-auto relative">
@@ -340,25 +302,24 @@ const ServicesAdministrate = () => {
             <TableCaption>تصفح قائمة الخدمات الخاصة بالجهاز</TableCaption>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-1/7">الحالة</TableHead>
-                <TableHead className="w-1/7">نوع التخديم</TableHead>
-                <TableHead className="w-1/7">المتطلبات</TableHead>
-                <TableHead className="w-1/7">الملاحظات</TableHead>
-                <TableHead className="w-1/7">المرفق</TableHead>
-                <TableHead className="w-1/7">رقم كلمة السر</TableHead>
-                <TableHead className="w-1/7">حذف تعديل</TableHead>
+                <TableHead className="w-1/6">الحالة</TableHead>
+                <TableHead className="w-1/6">نوع التخديم</TableHead>
+                <TableHead className="w-1/6">المتطلبات</TableHead>
+                <TableHead className="w-1/6">الملاحظات</TableHead>
+                <TableHead className="w-1/6">المرفق</TableHead>
+                <TableHead className="w-1/6">حذف تعديل</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {services.map((ele) => (
                 <TableRow key={ele.id} className="bg-[#988561]/30">
-                  <TableCell className="w-1/7">{ele.status}</TableCell>
-                  <TableCell className="w-1/7">{ele.service_type}</TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/6">{ele.status}</TableCell>
+                  <TableCell className="w-1/6">{ele.service_type}</TableCell>
+                  <TableCell className="w-1/6">
                     {ele.requirements ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/7">{ele.notes ?? ""}</TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/6">{ele.notes ?? ""}</TableCell>
+                  <TableCell className="w-1/6">
                     {ele.attach ? (
                       <Download
                         className="m-auto cursor-pointer"
@@ -368,10 +329,7 @@ const ServicesAdministrate = () => {
                       "لايوجد مرفق"
                     )}
                   </TableCell>
-                  <TableCell className="w-1/7">
-                    {ele?.passwords?.number ?? ""}
-                  </TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/6">
                     <DeleteOrEdit ele={ele}>
                       <Dialog>
                         <DialogTrigger asChild>

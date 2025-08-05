@@ -19,7 +19,6 @@ import {
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { serviceStatus, serviceType, type ServiceType } from "@/types/service";
-import { useState } from "react";
 import FileComponent from "./FileComponent";
 
 const FromServiceAdd = ({
@@ -27,10 +26,6 @@ const FromServiceAdd = ({
 }: {
   onAdd: (e: React.FormEvent<HTMLFormElement>) => void;
 }) => {
-  const [selectForm, setSelectForm] = useState<ServiceType | undefined>(
-    undefined
-  );
-
   return (
     <DialogContent className="min-w-fit">
       <form onSubmit={onAdd}>
@@ -59,10 +54,7 @@ const FromServiceAdd = ({
           </div>
           <div className="flex gap-x-2">
             <Label className="min-w-18">التخديم</Label>
-            <Select
-              name="service_type"
-              onValueChange={(value: ServiceType) => setSelectForm(value)}
-            >
+            <Select name="service_type">
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="اختر التخديم" />
               </SelectTrigger>
@@ -78,112 +70,34 @@ const FromServiceAdd = ({
               </SelectContent>
             </Select>
           </div>
-          {selectForm == "عمل كامل ويندوز" && (
-            <>
-              <div className="flex gap-x-2">
-                <Label htmlFor="password_num" className="min-w-18">
-                  كلمة المرور
-                </Label>
-                <Input
-                  id="password_num"
-                  name="password_num"
-                  placeholder="ادخل رقم كلمة المرور"
-                />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  المتطلبات
-                </Label>
-                <Input
-                  id="requirements"
-                  name="requirements"
-                  placeholder="ادخل ملاحظاتك"
-                />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  الملاحظات
-                </Label>
-                <Input id="notes" name="notes" placeholder="ادخل ملاحظاتك" />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="attach" className="min-w-18">
-                  المرفق
-                </Label>
-                <FileComponent />
-              </div>
-            </>
-          )}
-          {selectForm == "عمل كامل لينيكس" && (
-            <>
-              <div className="flex gap-x-2">
-                <Label htmlFor="password_num" className="min-w-18">
-                  كلمة المرور
-                </Label>
-                <Input
-                  id="password_num"
-                  name="password_num"
-                  placeholder="ادخل رقم كلمة المرور"
-                />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  المتطلبات
-                </Label>
-                <Input
-                  id="requirements"
-                  name="requirements"
-                  placeholder="ادخل ملاحظاتك"
-                />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  الملاحظات
-                </Label>
-                <Input id="notes" name="notes" placeholder="ادخل ملاحظاتك" />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="attach" className="min-w-18">
-                  المرفق
-                </Label>
-                <FileComponent />
-              </div>
-            </>
-          )}
-          {selectForm == "صيانة ويندوز او لينيكس" && (
-            <>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  المتطلبات
-                </Label>
-                <Input
-                  id="requirements"
-                  name="requirements"
-                  placeholder="ادخل ملاحظاتك"
-                />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="notes" className="min-w-18">
-                  الملاحظات
-                </Label>
-                <Input id="notes" name="notes" placeholder="ادخل ملاحظاتك" />
-              </div>
-              <div className="flex gap-x-2">
-                <Label htmlFor="attach" className="min-w-18">
-                  المرفق
-                </Label>
-                <FileComponent />
-              </div>
-            </>
-          )}
+          <div className="flex gap-x-2">
+            <Label htmlFor="notes" className="min-w-18">
+              المتطلبات
+            </Label>
+            <Input
+              id="requirements"
+              name="requirements"
+              placeholder="ادخل ملاحظاتك"
+            />
+          </div>
+          <div className="flex gap-x-2">
+            <Label htmlFor="notes" className="min-w-18">
+              الملاحظات
+            </Label>
+            <Input id="notes" name="notes" placeholder="ادخل ملاحظاتك" />
+          </div>
+          <div className="flex gap-x-2">
+            <Label htmlFor="attach" className="min-w-18">
+              المرفق
+            </Label>
+            <FileComponent />
+          </div>
         </div>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">إلغاء</Button>
           </DialogClose>
-          <Button type="submit" disabled={!selectForm}>
-            حفظ
-          </Button>
+          <Button type="submit">حفظ</Button>
         </DialogFooter>
       </form>
     </DialogContent>

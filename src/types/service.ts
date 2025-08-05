@@ -27,7 +27,6 @@ interface Service {
   job_id: string;
   status: ServiceStatus;
   service_type: ServiceType;
-  passwords?: Password;
   requirements?: string;
   notes?: string;
   attach?: string;

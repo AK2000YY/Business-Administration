@@ -21,7 +21,7 @@ const Main = () => {
       <Nav />
       <div className="w-screen flex flex-wrap grow justify-around items-start gap-y-2 overflow-y-auto">
         <Card
-          className="w-[35%] bg-transparent"
+          className="w-[30%] bg-transparent"
           onClick={() => navigate("/types")}
         >
           <CardHeader>
@@ -38,7 +38,7 @@ const Main = () => {
           </CardContent>
         </Card>
         <Card
-          className="w-[35%] bg-transparent"
+          className="w-[30%] bg-transparent"
           onClick={() => navigate("/works")}
         >
           <CardHeader>
@@ -58,7 +58,7 @@ const Main = () => {
           </CardContent>
         </Card>
         <Card
-          className="w-[35%] bg-transparent"
+          className="w-[30%] bg-transparent"
           onClick={() => navigate("/passwords")}
         >
           <CardHeader>
@@ -77,7 +77,7 @@ const Main = () => {
             />
           </CardContent>
         </Card>
-        <Card className="w-[35%] bg-transparent opacity-0"></Card>
+        <Card className="w-[30%] bg-transparent opacity-0"></Card>
       </div>
     </div>
   );
