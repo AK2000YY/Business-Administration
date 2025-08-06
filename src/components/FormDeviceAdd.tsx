@@ -251,6 +251,16 @@ const FormDeviceAdd = ({
             />
           </div>
           <div className="flex gap-x-2">
+            <Label htmlFor="password_num" className="min-w-22">
+              كلمة المرور
+            </Label>
+            <Input
+              id="password_num"
+              name="password_num"
+              placeholder="ادخل رقم كلمة المرور"
+            />
+          </div>
+          <div className="flex gap-x-2">
             <Label htmlFor="attachment" className="min-w-22">
               المرفق
             </Label>

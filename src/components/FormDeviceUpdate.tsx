@@ -255,7 +255,7 @@ const FormDeviceUpdate = ({
               id="entity"
               name="entity"
               placeholder="ادخل الجهة"
-              defaultValue={device.brother_name}
+              defaultValue={device.entity}
             />
           </div>
           <div className="flex gap-x-2">
@@ -267,6 +267,17 @@ const FormDeviceUpdate = ({
               name="contact_number"
               placeholder="ادخل رقم التواصل"
               defaultValue={device.contact_number}
+            />
+          </div>
+          <div className="flex gap-x-2">
+            <Label htmlFor="password_num" className="min-w-22">
+              كلمة المرور
+            </Label>
+            <Input
+              id="password_num"
+              name="password_num"
+              placeholder="ادخل رقم كلمة المرور"
+              defaultValue={device.passwords?.number}
             />
           </div>
           <div className="flex gap-x-2">
