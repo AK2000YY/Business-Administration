@@ -18,10 +18,11 @@ import supabase from "@/lib/supabase";
 import { toast } from "sonner";
 import type { Service } from "@/types/service";
 import type { Cpu } from "@/types/cpu";
+import type { Password } from "@/types/password";
 
 type ELemetType = {
   id: string;
-  tableName: "jobs" | "device_types" | "services" | "cpus";
+  tableName: "jobs" | "device_types" | "services" | "cpus" | "passwords";
   elementName: string;
 };
 
@@ -30,7 +31,7 @@ const DeleteOrEdit = ({
   ele,
 }: {
   children?: ReactNode;
-  ele: Work | DeviceType | Service | Cpu;
+  ele: Work | DeviceType | Service | Cpu | Password;
 }) => {
   const [element, setElement] = useState<ELemetType>();
 
@@ -40,6 +41,12 @@ const DeleteOrEdit = ({
         id: ele.id,
         tableName: "jobs",
         elementName: ele.model ?? "",
+      });
+    else if ("ice" in ele)
+      setElement({
+        id: ele.id,
+        tableName: "passwords",
+        elementName: ele.type,
       });
     else if ("type" in ele)
       setElement({
