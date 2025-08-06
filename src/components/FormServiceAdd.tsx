@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Button } from "./ui/button";
-import { serviceStatus, serviceType, type ServiceType } from "@/types/service";
+import { serviceStatus, serviceType } from "@/types/service";
 import FileComponent from "./FileComponent";
 
 const FromServiceAdd = ({
