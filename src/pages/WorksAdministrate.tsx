@@ -40,9 +40,10 @@ const WorksAdministrate = () => {
     setLoad(true);
     const { data, error } = await supabase
       .from("jobs")
-      .select("*, device_types(*)")
+      .select("*, device_types(*), passwords(*)")
       .order("created_at", { ascending: true })
       .range(end - 9, end);
+    console.log(data);
     if (error) toast.error("حدث خطأ ما!");
     else {
       setWorks(data ?? []);
@@ -55,7 +56,7 @@ const WorksAdministrate = () => {
     const getNewType = async (id: string = "") => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*, device_types(*)")
+        .select("*, device_types(*), passwords(*)")
         .order("created_at", { ascending: true })
         .range(end, end);
       if (error) toast.error("حدث خطأ ما!");
@@ -88,7 +89,7 @@ const WorksAdministrate = () => {
             case "INSERT": {
               const { data } = await supabase
                 .from("jobs")
-                .select("*, device_types(type), services(*)")
+                .select("*, device_types(*), passwords(*)")
                 .eq("id", newData.id)
                 .single();
               console.log(worksRef.current.length);
@@ -101,7 +102,7 @@ const WorksAdministrate = () => {
             case "UPDATE": {
               const { data } = await supabase
                 .from("jobs")
-                .select("*, device_types(type), services(*)")
+                .select("*, device_types(*), passwords(*)")
                 .eq("id", newData.id)
                 .single();
 
@@ -155,6 +156,21 @@ const WorksAdministrate = () => {
     for (const [key, value] of formData.entries()) {
       data[key] = value.toString().trim().length == 0 ? null : value;
     }
+    if ("password_num" in data && data["password_num"]) {
+      const password = await supabase
+        .from("passwords")
+        .select("*")
+        .eq("number", data["password_num"]);
+
+      if (password.error || password.data.length == 0) {
+        toast.error("تأكد من رقم كلمة السر");
+        return;
+      } else {
+        data["password_id"] = password.data[0].id;
+      }
+    }
+
+    delete data.password_num;
 
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
@@ -208,6 +224,22 @@ const WorksAdministrate = () => {
       data[key] = value.toString().trim().length == 0 ? null : value;
     }
 
+    data["password_id"] = null;
+    if ("password_num" in data && data["password_num"]) {
+      const password = await supabase
+        .from("passwords")
+        .select("*")
+        .eq("number", data["password_num"]);
+      if (password.error || password.data.length == 0) {
+        toast.error("تأكد من رقم كلمة السر");
+        return;
+      } else {
+        data["password_id"] = password.data[0].id;
+      }
+    }
+
+    delete data.password_num;
+
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
     const file = fileInput?.files?.[0];
@@ -255,7 +287,7 @@ const WorksAdministrate = () => {
     if (search.length != 0) {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*, device_types(*)")
+        .select("*, device_types(*), passwords(*)")
         .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
       setWorks(data ?? []);
       worksRef.current = data ?? [];
@@ -333,6 +365,7 @@ const WorksAdministrate = () => {
                 <TableHead className="w-1/17">رقم التواصل</TableHead>
                 <TableHead className="w-1/17">كرت الشبكة</TableHead>
                 <TableHead className="w-1/17">الملاحظات</TableHead>
+                <TableHead className="w-1/17">كلمة المرور</TableHead>
                 <TableHead className="w-1/17">المرفقات</TableHead>
                 <TableHead className="w-1/17">حذف تعديل تخديم</TableHead>
               </TableRow>
@@ -367,6 +400,9 @@ const WorksAdministrate = () => {
                     {ele.wifi_card ?? ""}
                   </TableCell>
                   <TableCell className="w-1/17">{ele.notes ?? ""}</TableCell>
+                  <TableCell className="w-1/17">
+                    {ele.passwords?.number ?? ""}
+                  </TableCell>
                   <TableCell className="w-1/17">
                     {ele.attachment ? (
                       <Download
