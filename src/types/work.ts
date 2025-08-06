@@ -1,6 +1,7 @@
 import type { Cpu } from "./cpu";
 import type { DeviceStatus } from "./device_status";
 import type { DeviceType } from "./device_type";
+import type { Password } from "./password";
 import type { RamType } from "./ram_type";
 
 type Work = {
@@ -21,6 +22,7 @@ type Work = {
   cpu?: Cpu;
   ram_type?: RamType;
   notes?: string;
+  passwords: Password;
 };
 
 export { type Work };

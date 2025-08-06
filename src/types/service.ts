@@ -1,7 +1,4 @@
 // import type { LinuxPassword, WindowPassword } from "./password";
-
-import type { Password } from "./password";
-
 const serviceStatus = ["سوفت وير"] as const;
 type ServiceStatus = (typeof serviceStatus)[number];
 
