@@ -70,6 +70,14 @@ const DeleteOrEdit = ({
 
   const handleDelete = async () => {
     if (element?.tableName == "passwords") {
+      const { error: jobError, data } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("password_id", element.id);
+      if (data?.length != 0 || jobError) {
+        toast.error("الكلمة مرتبطة");
+        return;
+      }
       const { error } = await supabase
         .from(element.tableName)
         .update([{ is_used: false }])

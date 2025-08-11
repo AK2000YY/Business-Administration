@@ -30,6 +30,7 @@ import { ramType } from "@/types/ram_type";
 import { deviceStatus } from "@/types/device_status";
 import { wifiCardStatus } from "@/types/wifi_card_status";
 import FileComponent from "./FileComponent";
+import { passwordType, type PasswordType } from "@/types/password";
 
 const FormDeviceAdd = ({
   types,
@@ -47,6 +48,12 @@ const FormDeviceAdd = ({
   handleAdd: (e: React.FormEvent<HTMLFormElement>) => void;
 }) => {
   const [cpus, setCpus] = useState<Cpu[]>([]);
+  const [formSelector, setFomrSelector] = useState<PasswordType | undefined>(
+    undefined
+  );
+  const [initailPassword, setInitialPassword] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const getCpus = async () => {
@@ -55,8 +62,26 @@ const FormDeviceAdd = ({
       if (error) toast.error("حدث خطأ ما!");
       else setCpus(data ?? []);
     };
-    getCpus();
-  }, []);
+    const getFirstUnsedPassword = async () => {
+      const { data, error } = await supabase
+        .from("passwords")
+        .select("number,jobs ( id )")
+        .is("jobs", null)
+        .eq("type", formSelector)
+        .order("number", { ascending: true })
+        .limit(1);
+
+      console.log(data);
+      if (error) {
+        toast.error("شيء ما خاطئ");
+        console.log(error);
+      } else if (data.length > 0) {
+        setInitialPassword(data[0].number);
+      }
+    };
+    if (!formSelector) getCpus();
+    if (formSelector) getFirstUnsedPassword();
+  }, [formSelector]);
 
   return (
     <DialogContent className="min-w-fit">
@@ -251,14 +276,39 @@ const FormDeviceAdd = ({
             />
           </div>
           <div className="flex gap-x-2">
-            <Label htmlFor="password_num" className="min-w-22">
-              كلمة المرور
-            </Label>
-            <Input
-              id="password_num"
-              name="password_num"
-              placeholder="ادخل رقم كلمة المرور"
-            />
+            <div className="flex gap-x-2">
+              <Label htmlFor="password_num" className="min-w-22">
+                كلمة المرور
+              </Label>
+              <Input
+                id="password_num"
+                name="password_num"
+                placeholder="ادخل رقم كلمة المرور"
+                value={initailPassword || ""}
+                onChange={(e) => setInitialPassword(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-x-2">
+              <Label className="w-22">نوع النظام للكلمة</Label>
+              <Select
+                name="password_type"
+                onValueChange={(value: PasswordType) => setFomrSelector(value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="نوع الخاص بالكلمة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>النوع</SelectLabel>
+                    {passwordType.map((ele) => (
+                      <SelectItem key={ele} value={ele}>
+                        {ele}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="flex gap-x-2">
             <Label htmlFor="attachment" className="min-w-22">
