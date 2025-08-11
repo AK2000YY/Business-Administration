@@ -26,7 +26,7 @@ const PasswordAdministrate = () => {
   const [search, setSearch] = useState<string>("");
   const [load, setLoading] = useState<boolean>(true);
   const [passwords, setPasswords] = useState<Password[]>([]);
-  const [end, setEnd] = useState<number>(9);
+  const [end, setEnd] = useState<number>(14);
   const [dialogKey, setDialogKey] = useState<number>(0);
 
   useEffect(() => {
@@ -35,7 +35,8 @@ const PasswordAdministrate = () => {
         .from("passwords")
         .select("*")
         .neq("is_used", false)
-        .range(end - 9, end);
+        .range(end - 14, end)
+        .order("number");
       console.log(data);
       if (error) toast.error("حدث خطأ ما!");
       else setPasswords(data ?? []);
@@ -52,8 +53,10 @@ const PasswordAdministrate = () => {
           switch (eventType) {
             case "INSERT": {
               const data: Password = newData as Password;
-              console.log(data);
-              setPasswords((prev) => [...prev, data]);
+              setPasswords((prev) => {
+                if (prev.length < 15) return [...prev, data];
+                else return prev;
+              });
               break;
             }
             case "UPDATE": {
@@ -168,7 +171,8 @@ const PasswordAdministrate = () => {
     const { data, error } = await supabase
       .from("passwords")
       .select("*")
-      .eq("number", Number(search));
+      .eq("number", Number(search))
+      .eq("is_used", true);
     setPasswords(data ?? []);
     if (error) toast.error("شيء ما خاطىء!");
     else toast.success(`تم العثور على ${data.length} عنصر`);
@@ -210,35 +214,45 @@ const PasswordAdministrate = () => {
             <TableCaption>تصفح كلمات السر</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-1/8">رقم الكلمة</TableHead>
-                <TableHead className="w-1/8">النوع</TableHead>
-                <TableHead className="w-1/8">النظام</TableHead>
-                <TableHead className="w-1/8">المستخدم</TableHead>
-                <TableHead className="w-1/8">تشفير ملف</TableHead>
-                <TableHead className="w-1/8">البيوس</TableHead>
-                <TableHead className="w-1/8">التجميد</TableHead>
-                <TableHead className="w-1/8">تعديل او حذف</TableHead>
+                <TableHead className="w-1/10">رقم الكلمة</TableHead>
+                <TableHead className="w-1/10">النوع</TableHead>
+                <TableHead className="w-1/10">النظام</TableHead>
+                <TableHead className="w-1/10">المستخدم</TableHead>
+                <TableHead className="w-1/10">تشفير ملف</TableHead>
+                <TableHead className="w-1/10">البيوس</TableHead>
+                <TableHead className="w-1/10">التجميد</TableHead>
+                <TableHead className="w-1/10">القفل</TableHead>
+                <TableHead className="w-1/10">التشفير</TableHead>
+                <TableHead className="w-1/10">تعديل او حذف</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {passwords.map((ele) => (
                 <TableRow key={ele.id}>
-                  <TableCell className="w-1/8">{ele.number}</TableCell>
-                  <TableCell className="w-1/8">{ele.type}</TableCell>
-                  <TableCell className="w-1/8">
+                  <TableCell className="w-1/10">{ele.number}</TableCell>
+                  <TableCell className="w-1/10">{ele.type}</TableCell>
+                  <TableCell className="w-1/10">
                     {ele.system ?? "لايوجد"}
                   </TableCell>
-                  <TableCell className="w-1/8">
+                  <TableCell className="w-1/10">
                     {ele.username ?? "لايوجد"}
                   </TableCell>
-                  <TableCell className="w-1/8">
+                  <TableCell className="w-1/10">
                     {ele.file ?? "لايوجد"}
                   </TableCell>
-                  <TableCell className="w-1/8">
+                  <TableCell className="w-1/10">
                     {ele.bios ?? "لايوجد"}
                   </TableCell>
-                  <TableCell className="w-1/8">{ele.ice ?? "لايوجد"}</TableCell>
-                  <TableCell className="w-1/8">
+                  <TableCell className="w-1/10">
+                    {ele.ice ?? "لايوجد"}
+                  </TableCell>
+                  <TableCell className="w-1/10">
+                    {ele.lock ?? "لايوجد"}
+                  </TableCell>
+                  <TableCell className="w-1/10">
+                    {ele.encryption ?? "لايوجد"}
+                  </TableCell>
+                  <TableCell className="w-1/10">
                     <DeleteOrEdit ele={ele}>
                       <Dialog>
                         <DialogTrigger asChild>
@@ -260,11 +274,11 @@ const PasswordAdministrate = () => {
         )}
       </div>
       <Pagination
-        pageNumber={end / 9}
+        pageNumber={(end - 14) / 15 + 1}
         nextDisable={false}
-        previousDisable={end - 9 == 0}
-        onNext={() => setEnd(end + 9)}
-        onPrevious={() => setEnd(end - 9)}
+        previousDisable={end - 14 == 0}
+        onNext={() => setEnd(end + 15)}
+        onPrevious={() => setEnd(end - 15)}
       />
     </div>
   );
