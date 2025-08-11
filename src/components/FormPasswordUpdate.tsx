@@ -50,22 +50,12 @@ const FormPasswordUpdate = ({
         <div className="grid gap-4 py-2">
           <input hidden defaultValue={password.id} name="id" />
           <div className="flex gap-x-2">
-            <Label htmlFor="number" className="min-w-18">
-              الرقم
-            </Label>
-            <Input
-              id="number"
-              name="number"
-              placeholder="ادخل رقم كلمة المرور"
-              defaultValue={password.number}
-            />
-          </div>
-          <div className="flex gap-x-2">
             <Label className="min-w-18">الحالة</Label>
             <Select
               name="type"
               onValueChange={(value: PasswordType) => setFormSelector(value)}
               defaultValue={password.type}
+              disabled
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="اختر النوع" />
@@ -82,7 +72,18 @@ const FormPasswordUpdate = ({
               </SelectContent>
             </Select>
           </div>
-
+          <div className="flex gap-x-2">
+            <Label htmlFor="number" className="min-w-18">
+              الرقم
+            </Label>
+            <Input
+              id="number"
+              name="number"
+              placeholder="ادخل رقم كلمة المرور"
+              defaultValue={password.number}
+              disabled
+            />
+          </div>
           {formSelector === "ويندوز" && (
             <>
               <div className="flex gap-x-2">

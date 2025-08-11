@@ -69,13 +69,22 @@ const DeleteOrEdit = ({
   }, []);
 
   const handleDelete = async () => {
-    const { error } = await supabase
-      .from(element!.tableName)
-      .delete()
-      .eq("id", element!.id);
-    console.log(error);
-    if (error) toast.error("حدث خطأ ما!");
-    else toast.success("تمت عملية الحذف بنجاح");
+    if (element?.tableName == "passwords") {
+      const { error } = await supabase
+        .from(element.tableName)
+        .update([{ is_used: false }])
+        .eq("id", element.id);
+      if (error) toast.error("حدث خطأ ما!");
+      else toast.success("تمت عملية الحذف بنجاح");
+    } else {
+      const { error } = await supabase
+        .from(element!.tableName)
+        .delete()
+        .eq("id", element!.id);
+      console.log(error);
+      if (error) toast.error("حدث خطأ ما!");
+      else toast.success("تمت عملية الحذف بنجاح");
+    }
   };
 
   return (
