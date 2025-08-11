@@ -38,32 +38,44 @@ const FormPasswordAdd = ({
 
   useEffect(() => {
     const getFirstUnsedPassword = async () => {
-      if (formSelector == "لينيكس") {
-        const { data, error } = await supabase
-          .from("passwords")
-          .select("*")
-          .eq("type", "لينيكس")
-          .eq("is_used", false)
-          .order("number", { ascending: true })
-          .limit(1);
-        if (error) {
-          toast.error("شيء ما خاطئ");
-        } else {
-          setInitialPassword(data[0].number);
-        }
+      // if (formSelector == "لينيكس") {
+      //   const { data, error } = await supabase
+      //     .from("passwords")
+      //     .select("*")
+      //     .eq("type", "لينيكس")
+      //     .eq("is_used", false)
+      //     .order("number", { ascending: true })
+      //     .limit(1);
+      //   if (error) {
+      //     toast.error("شيء ما خاطئ");
+      //   } else {
+      //     setInitialPassword(data[0].number);
+      //   }
+      // } else {
+      //   const { data, error } = await supabase
+      //     .from("passwords")
+      //     .select("*")
+      //     .eq("type", "ويندوز")
+      //     .eq("is_used", false)
+      //     .order("number", { ascending: true })
+      //     .limit(1);
+      //   if (error) {
+      //     toast.error("شيء ما خاطئ");
+      //   } else {
+      //     setInitialPassword(data[0].number);
+      //   }
+      // }
+      const { data, error } = await supabase
+        .from("passwords")
+        .select("*")
+        .eq("type", formSelector)
+        .eq("is_used", false)
+        .order("number", { ascending: true })
+        .limit(1);
+      if (error) {
+        toast.error("شيء ما خاطئ");
       } else {
-        const { data, error } = await supabase
-          .from("passwords")
-          .select("*")
-          .eq("type", "ويندوز")
-          .eq("is_used", false)
-          .order("number", { ascending: true })
-          .limit(1);
-        if (error) {
-          toast.error("شيء ما خاطئ");
-        } else {
-          setInitialPassword(data[0].number);
-        }
+        setInitialPassword(data[0].number);
       }
     };
 
@@ -198,6 +210,30 @@ const FormPasswordAdd = ({
                       id="file"
                       name="file"
                       placeholder="ادخل كلمة مرور تشفير الملف"
+                    />
+                  </div>
+                </>
+              )}
+              {formSelector === "وحدة تخزين" && (
+                <>
+                  <div className="flex gap-x-2">
+                    <Label htmlFor="lock" className="min-w-18">
+                      قفل
+                    </Label>
+                    <Input
+                      id="lock"
+                      name="lock"
+                      placeholder="ادخل كلمة مرور القفل"
+                    />
+                  </div>
+                  <div className="flex gap-x-2">
+                    <Label htmlFor="encryption" className="min-w-18">
+                      تشفير
+                    </Label>
+                    <Input
+                      id="encryption"
+                      name="encryption"
+                      placeholder="ادخل كلمة مرور التشفير"
                     />
                   </div>
                 </>

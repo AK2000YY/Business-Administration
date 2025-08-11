@@ -180,6 +180,32 @@ const FormPasswordUpdate = ({
               </div>
             </>
           )}
+          {formSelector === "وحدة تخزين" && (
+            <>
+              <div className="flex gap-x-2">
+                <Label htmlFor="lock" className="min-w-18">
+                  قفل
+                </Label>
+                <Input
+                  id="lock"
+                  name="lock"
+                  placeholder="ادخل كلمة مرور القفل"
+                  defaultValue={password.lock}
+                />
+              </div>
+              <div className="flex gap-x-2">
+                <Label htmlFor="encryption" className="min-w-18">
+                  تشفير
+                </Label>
+                <Input
+                  id="encryption"
+                  name="encryption"
+                  placeholder="ادخل كلمة مرور التشفير"
+                  defaultValue={password.encryption}
+                />
+              </div>
+            </>
+          )}
         </div>
         <DialogFooter>
           <DialogClose asChild>
