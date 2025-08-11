@@ -22,7 +22,7 @@ type Work = {
   cpu?: Cpu;
   ram_type?: RamType;
   notes?: string;
-  passwords: Password;
+  passwords?: Password;
 };
 
 export { type Work };

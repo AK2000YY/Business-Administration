@@ -20,7 +20,7 @@ import supabase from "@/lib/supabase";
 import { type DeviceType } from "@/types/device_type";
 import type { Work } from "@/types/work";
 import { Download, HandHelping, Pencil, Plus, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -29,8 +29,7 @@ const WorksAdministrate = () => {
   const [works, setWorks] = useState<Work[]>([]);
   const [types, setTypes] = useState<DeviceType[]>([]);
   const [load, setLoad] = useState<boolean>(true);
-  const [end, setEnd] = useState<number>(9);
-  const worksRef = useRef<Work[]>([]);
+  const [end, setEnd] = useState<number>(14);
   const navigate = useNavigate();
 
   const [arrivalOpen, setArrivalOpen] = useState(false);
@@ -42,36 +41,16 @@ const WorksAdministrate = () => {
       .from("jobs")
       .select("*, device_types(*), passwords(*)")
       .order("created_at", { ascending: true })
-      .range(end - 9, end);
+      .range(end - 14, end);
     console.log(data);
     if (error) toast.error("حدث خطأ ما!");
     else {
       setWorks(data ?? []);
-      worksRef.current = data ?? [];
       setLoad(false);
     }
   };
 
   useEffect(() => {
-    const getNewType = async (id: string = "") => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*, device_types(*), passwords(*)")
-        .order("created_at", { ascending: true })
-        .range(end, end);
-      if (error) toast.error("حدث خطأ ما!");
-      else {
-        setWorks((prev) => [
-          ...prev.filter((ele) => ele.id != id),
-          ...(data ?? []),
-        ]);
-        worksRef.current = [
-          ...worksRef.current.filter((ele) => ele.id != id),
-          ...(data ?? []),
-        ];
-      }
-    };
-
     const getDeviceTypes = async () => {
       const { data, error } = await supabase.from("device_types").select("*");
       if (error) toast.error("حدث خطأ ما!");
@@ -92,11 +71,10 @@ const WorksAdministrate = () => {
                 .select("*, device_types(*), passwords(*)")
                 .eq("id", newData.id)
                 .single();
-              console.log(worksRef.current.length);
-              if (data && worksRef.current.length < 10) {
-                setWorks((prev) => [...prev, data]);
-                worksRef.current = [...worksRef.current, data];
-              }
+              setWorks((prev) => {
+                if (prev.length < 15) return [...prev, data];
+                else return prev;
+              });
               break;
             }
             case "UPDATE": {
@@ -110,20 +88,13 @@ const WorksAdministrate = () => {
                 setWorks((prev) =>
                   prev.map((job) => (job.id === data.id ? data : job))
                 );
-                worksRef.current = [
-                  ...worksRef.current.map((job) =>
-                    job.id === data.id ? data : job
-                  ),
-                ];
               }
               break;
             }
 
             case "DELETE": {
               const job: Work = old as Work;
-              if (worksRef.current.some((ele) => ele.id == job.id)) {
-                getNewType(job.id);
-              }
+              setWorks((prev) => prev.filter((ele) => ele.id != job.id));
             }
           }
         }
@@ -177,7 +148,7 @@ const WorksAdministrate = () => {
         data["password_id"] = password.data[0].id;
       }
     }
-
+    delete data.password_type;
     delete data.password_num;
 
     //file  uploade
@@ -233,7 +204,14 @@ const WorksAdministrate = () => {
     }
 
     data["password_id"] = null;
-    if ("password_num" in data && data["password_num"]) {
+    if (
+      "password_num" in data &&
+      data["password_num"] &&
+      device.passwords &&
+      data["password_num"] == device.passwords.number
+    )
+      data["password_id"] = device.passwords.id;
+    else if ("password_num" in data && data["password_num"]) {
       const password = await supabase
         .from("passwords")
         .select("*")
@@ -255,6 +233,7 @@ const WorksAdministrate = () => {
       }
     }
 
+    delete data.password_type;
     delete data.password_num;
 
     //file  uploade
@@ -307,7 +286,6 @@ const WorksAdministrate = () => {
         .select("*, device_types(*), passwords(*)")
         .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
       setWorks(data ?? []);
-      worksRef.current = data ?? [];
       setLoad(false);
       console.log("ak2", data);
       if (error) toast.error("شيء ما خاطىء!");
@@ -474,11 +452,11 @@ const WorksAdministrate = () => {
         )}
       </div>
       <Pagination
-        pageNumber={end / 9}
+        pageNumber={(end - 14) / 15 + 1}
         nextDisable={false}
-        previousDisable={end - 9 == 0}
-        onNext={() => setEnd(end + 9)}
-        onPrevious={() => setEnd(end - 9)}
+        previousDisable={end - 14 == 0}
+        onNext={() => setEnd(end + 15)}
+        onPrevious={() => setEnd(end - 15)}
       />
     </div>
   );
