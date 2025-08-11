@@ -160,12 +160,20 @@ const WorksAdministrate = () => {
       const password = await supabase
         .from("passwords")
         .select("*")
-        .eq("number", data["password_num"]);
-
+        .eq("number", data["password_num"])
+        .eq("is_used", true);
       if (password.error || password.data.length == 0) {
         toast.error("تأكد من رقم كلمة السر");
         return;
       } else {
+        const currentPassword = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("password_id", password.data![0].id);
+        if (currentPassword.data?.length != 0) {
+          toast.error("كلمة السر مستخدمة");
+          return;
+        }
         data["password_id"] = password.data[0].id;
       }
     }
@@ -229,11 +237,20 @@ const WorksAdministrate = () => {
       const password = await supabase
         .from("passwords")
         .select("*")
-        .eq("number", data["password_num"]);
+        .eq("number", data["password_num"])
+        .eq("is_used", true);
       if (password.error || password.data.length == 0) {
         toast.error("تأكد من رقم كلمة السر");
         return;
       } else {
+        const currentPassword = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("password_id", password.data![0].id);
+        if (currentPassword.data?.length != 0) {
+          toast.error("كلمة السر مستخدمة");
+          return;
+        }
         data["password_id"] = password.data[0].id;
       }
     }

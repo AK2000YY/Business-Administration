@@ -3,6 +3,7 @@ import FormPasswordAdd from "@/components/FormPasswordAdd";
 import FormPasswordUpdate from "@/components/FormPasswordUpdate";
 import Loader from "@/components/loader";
 import Nav from "@/components/Nav";
+import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,10 +26,16 @@ const PasswordAdministrate = () => {
   const [search, setSearch] = useState<string>("");
   const [load, setLoading] = useState<boolean>(true);
   const [passwords, setPasswords] = useState<Password[]>([]);
+  const [end, setEnd] = useState<number>(9);
+  const [dialogKey, setDialogKey] = useState<number>(0);
 
   useEffect(() => {
     const getTypes = async () => {
-      const { data, error } = await supabase.from("passwords").select("*");
+      const { data, error } = await supabase
+        .from("passwords")
+        .select("*")
+        .neq("is_used", false)
+        .range(end - 9, end);
       console.log(data);
       if (error) toast.error("حدث خطأ ما!");
       else setPasswords(data ?? []);
@@ -54,6 +61,7 @@ const PasswordAdministrate = () => {
               setPasswords((prev) =>
                 prev.map((ele) => (ele.id === data.id ? data : ele))
               );
+              setPasswords((prev) => prev.filter((ele) => ele.is_used));
               break;
             }
             case "DELETE": {
@@ -70,7 +78,7 @@ const PasswordAdministrate = () => {
     return () => {
       channel.unsubscribe();
     };
-  }, []);
+  }, [end]);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,6 +94,40 @@ const PasswordAdministrate = () => {
         toast.error("احد الحقول المطلوبة فارغة!");
         return;
       }
+    }
+
+    data["is_used"] = true;
+
+    const password = await supabase
+      .from("passwords")
+      .select("*")
+      .eq("number", data["number"])
+      .eq("is_used", false);
+
+    if (password.error) {
+      toast.error("شيء ما خاطىء");
+      return;
+    } else if (password.data.length == 0) {
+      toast.error("الرقم ليس ضمن المجال المعين");
+      return;
+    } else {
+      if (
+        password.data[0].number != data["number"] ||
+        password.data[0].type != data["type"]
+      ) {
+        toast.error("الرقم ليس ضمن المجال المعين");
+        return;
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("passwords")
+      .delete()
+      .eq("number", data["number"]);
+
+    if (deleteError) {
+      toast.error("شيء ما خاطىء");
+      return;
     }
 
     const { error } = await supabase.from("passwords").insert([data]);
@@ -135,7 +177,7 @@ const PasswordAdministrate = () => {
   };
 
   return (
-    <div className="w-screen h-screen">
+    <div className="flex flex-col h-screen">
       <Nav>
         <form className="flex gap-x-1 pr-15" onSubmit={handleSearch}>
           <Input
@@ -151,14 +193,17 @@ const PasswordAdministrate = () => {
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-[#165D4E]">
+            <Button
+              className="bg-[#165D4E]"
+              onClick={() => setDialogKey((prev) => (prev + 1) % 2)}
+            >
               إضافة كلمة مرور <Plus />
             </Button>
           </DialogTrigger>
-          <FormPasswordAdd onAdd={handleAdd} />
+          <FormPasswordAdd key={dialogKey} onAdd={handleAdd} />
         </Dialog>
       </Nav>
-      <div className="p-3">
+      <div className="flex-1 overflow-y-auto relative">
         {load && <Loader />}
         {!load && (
           <Table>
@@ -214,6 +259,13 @@ const PasswordAdministrate = () => {
           </Table>
         )}
       </div>
+      <Pagination
+        pageNumber={end / 9}
+        nextDisable={false}
+        previousDisable={end - 9 == 0}
+        onNext={() => setEnd(end + 9)}
+        onPrevious={() => setEnd(end - 9)}
+      />
     </div>
   );
 };

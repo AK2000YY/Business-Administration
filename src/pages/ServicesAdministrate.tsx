@@ -37,7 +37,7 @@ const ServicesAdministrate = () => {
       setLoad(true);
       const { data, error } = await supabase
         .from("services")
-        .select("*, passwords(*)")
+        .select("*")
         .eq("job_id", id)
         .range(end - 9, end);
       console.log(data);
@@ -52,7 +52,7 @@ const ServicesAdministrate = () => {
     const getNewService = async (id: string = "") => {
       const { data, error } = await supabase
         .from("services")
-        .select("*, passwords(*)")
+        .select("*")
         .eq("job_id", id)
         .range(end, end);
       if (error) toast.error("حدث خطأ ما!");
@@ -68,18 +68,18 @@ const ServicesAdministrate = () => {
       }
     };
 
-    const servicesChannel = supabase
-      .channel("services-channel")
+    const services = supabase
+      .channel("services-all-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "services" },
         async ({ eventType, old, new: newData }) => {
-          console.log(eventType);
+          console.log("hiii");
           switch (eventType) {
             case "INSERT": {
               const { data } = await supabase
                 .from("services")
-                .select("*, passwords(*)")
+                .select("*")
                 .eq("job_id", id)
                 .eq("id", newData.id)
                 .single();
@@ -93,11 +93,11 @@ const ServicesAdministrate = () => {
             case "UPDATE": {
               const { data } = await supabase
                 .from("services")
-                .select("*, passwords(*)")
+                .select("*")
                 .eq("job_id", id)
                 .eq("id", newData.id)
                 .single();
-
+              console.log(data);
               if (data) {
                 setServices((prev) =>
                   prev.map((service) =>
@@ -112,7 +112,6 @@ const ServicesAdministrate = () => {
               }
               break;
             }
-
             case "DELETE": {
               const service: Service = old as Service;
               if (servicesRef.current.some((ele) => ele.id == service.id)) {
@@ -126,7 +125,7 @@ const ServicesAdministrate = () => {
 
     getServices();
     return () => {
-      servicesChannel.unsubscribe();
+      services.unsubscribe();
     };
   }, [end]);
 
@@ -141,7 +140,6 @@ const ServicesAdministrate = () => {
 
     for (const [key, value] of formData.entries()) {
       data[key] = value;
-      console.log("key", data[key]);
       if (!data[key]) {
         toast.error("أحد الحقول فارغة!");
         return;
@@ -173,10 +171,7 @@ const ServicesAdministrate = () => {
 
     data["job_id"] = id;
 
-    console.log(data);
-
     const { error } = await supabase.from("services").insert([data]);
-    console.log(error);
     if (error) toast.error("حدث خطأ ما!");
     else toast.success("تمت الإضافة");
   };
@@ -196,7 +191,6 @@ const ServicesAdministrate = () => {
 
     for (const [key, value] of formData.entries()) {
       data[key] = value;
-      console.log("key", data[key]);
       if (!data[key]) {
         toast.error("أحد الحقول فارغة!");
         return;
@@ -239,8 +233,6 @@ const ServicesAdministrate = () => {
 
     data["job_id"] = id;
 
-    console.log(data);
-
     const { error } = await supabase
       .from("services")
       .update([data])
@@ -254,7 +246,7 @@ const ServicesAdministrate = () => {
     e.preventDefault();
     const { data, error } = await supabase
       .from("services")
-      .select("*, passwords(*)")
+      .select("*")
       .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
     setServices(data ?? []);
     console.log("ak2", data);

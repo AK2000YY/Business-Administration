@@ -10,6 +10,7 @@ type Password = {
   ice: string;
   system: string;
   file?: string;
+  is_used: boolean;
 };
 
 export { type Password, passwordType, type PasswordType };
