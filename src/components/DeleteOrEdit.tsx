@@ -46,7 +46,7 @@ const DeleteOrEdit = ({
       setElement({
         id: ele.id,
         tableName: "passwords",
-        elementName: ele.type,
+        elementName: ele.type!,
       });
     else if ("type" in ele)
       setElement({
