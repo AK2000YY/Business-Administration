@@ -19,7 +19,7 @@ import {
 import supabase from "@/lib/supabase";
 import type { Service } from "@/types/service";
 import { Download, Pencil, Plus, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -29,8 +29,7 @@ const ServicesAdministrate = () => {
   const [search, setSearch] = useState<string>("");
   const [services, setServices] = useState<Service[]>([]);
   const [load, setLoad] = useState<boolean>(true);
-  const [end, setEnd] = useState<number>(9);
-  const servicesRef = useRef<Service[]>([]);
+  const [end, setEnd] = useState<number>(14);
 
   useEffect(() => {
     const getServices = async () => {
@@ -39,32 +38,12 @@ const ServicesAdministrate = () => {
         .from("services")
         .select("*")
         .eq("job_id", id)
-        .range(end - 9, end);
+        .range(end - 14, end);
       console.log(data);
       if (error) toast.error("حدث خطأ ما!");
       else {
         setServices(data ?? []);
-        servicesRef.current = data ?? [];
         setLoad(false);
-      }
-    };
-
-    const getNewService = async (id: string = "") => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("job_id", id)
-        .range(end, end);
-      if (error) toast.error("حدث خطأ ما!");
-      else {
-        setServices((prev) => [
-          ...prev.filter((ele) => ele.id != id),
-          ...(data ?? []),
-        ]);
-        servicesRef.current = [
-          ...servicesRef.current.filter((ele) => ele.id != id),
-          ...(data ?? []),
-        ];
       }
     };
 
@@ -83,11 +62,10 @@ const ServicesAdministrate = () => {
                 .eq("job_id", id)
                 .eq("id", newData.id)
                 .single();
-              console.log(servicesRef.current.length);
-              if (data && servicesRef.current.length < 10) {
-                setServices((prev) => [...prev, data]);
-                servicesRef.current = [...servicesRef.current, data];
-              }
+              setServices((prev) => {
+                if (data && prev.length < 15) return [...prev, data];
+                else return prev;
+              });
               break;
             }
             case "UPDATE": {
@@ -104,19 +82,12 @@ const ServicesAdministrate = () => {
                     service.id === data.id ? data : service
                   )
                 );
-                servicesRef.current = [
-                  ...servicesRef.current.map((service) =>
-                    service.id === data.id ? data : service
-                  ),
-                ];
               }
               break;
             }
             case "DELETE": {
               const service: Service = old as Service;
-              if (servicesRef.current.some((ele) => ele.id == service.id)) {
-                getNewService(service.id);
-              }
+              setServices((prev) => prev.filter((ele) => ele.id != service.id));
             }
           }
         }
@@ -343,11 +314,11 @@ const ServicesAdministrate = () => {
         )}
       </div>
       <Pagination
-        pageNumber={end / 9}
+        pageNumber={(end - 14) / 15 + 1}
         nextDisable={false}
-        previousDisable={end - 9 == 0}
-        onNext={() => setEnd(end + 9)}
-        onPrevious={() => setEnd(end - 9)}
+        previousDisable={end - 14 == 0}
+        onNext={() => setEnd(end + 15)}
+        onPrevious={() => setEnd(end - 15)}
       />
     </div>
   );
