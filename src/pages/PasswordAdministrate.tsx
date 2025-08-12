@@ -218,11 +218,11 @@ const PasswordAdministrate = () => {
                 <TableHead className="w-1/10">النوع</TableHead>
                 <TableHead className="w-1/10">النظام</TableHead>
                 <TableHead className="w-1/10">المستخدم</TableHead>
-                <TableHead className="w-1/10">تشفير ملف</TableHead>
+                <TableHead className="w-1/10">تشفير ملف أنكليزي</TableHead>
+                <TableHead className="w-1/10">تشفير ملف عربي</TableHead>
                 <TableHead className="w-1/10">البيوس</TableHead>
                 <TableHead className="w-1/10">التجميد</TableHead>
                 <TableHead className="w-1/10">القفل</TableHead>
-                <TableHead className="w-1/10">التشفير</TableHead>
                 <TableHead className="w-1/10">تعديل او حذف</TableHead>
               </TableRow>
             </TableHeader>
@@ -241,6 +241,9 @@ const PasswordAdministrate = () => {
                     {ele.file ?? "لايوجد"}
                   </TableCell>
                   <TableCell className="w-1/10">
+                    {ele.file_arabic ?? "لايوجد"}
+                  </TableCell>
+                  <TableCell className="w-1/10">
                     {ele.bios ?? "لايوجد"}
                   </TableCell>
                   <TableCell className="w-1/10">
@@ -248,9 +251,6 @@ const PasswordAdministrate = () => {
                   </TableCell>
                   <TableCell className="w-1/10">
                     {ele.lock ?? "لايوجد"}
-                  </TableCell>
-                  <TableCell className="w-1/10">
-                    {ele.encryption ?? "لايوجد"}
                   </TableCell>
                   <TableCell className="w-1/10">
                     <DeleteOrEdit ele={ele}>
