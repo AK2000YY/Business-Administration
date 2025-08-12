@@ -10,9 +10,9 @@ type Password = {
   ice: string;
   system: string;
   file?: string;
+  file_arabic?: string;
   is_used: boolean;
   lock: string;
-  encryption: string;
 };
 
 export { type Password, passwordType, type PasswordType };
