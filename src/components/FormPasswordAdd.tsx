@@ -160,12 +160,22 @@ const FormPasswordAdd = ({
                   </div>
                   <div className="flex gap-x-2">
                     <Label htmlFor="file" className="min-w-18">
-                      كلمة الملف
+                      تشفير أنكليزي
                     </Label>
                     <Input
                       id="file"
                       name="file"
-                      placeholder="ادخل كلمة مرور تشفير الملف"
+                      placeholder="ادخل كلمة مرور التشفير"
+                    />
+                  </div>
+                  <div className="flex gap-x-2">
+                    <Label htmlFor="file_arabic" className="min-w-18">
+                      تشفير عربي
+                    </Label>
+                    <Input
+                      id="file_arabic"
+                      name="file_arabic"
+                      placeholder="ادخل كلمة مرور التشفير"
                     />
                   </div>
                 </>
@@ -204,12 +214,22 @@ const FormPasswordAdd = ({
                   </div>
                   <div className="flex gap-x-2">
                     <Label htmlFor="file" className="min-w-18">
-                      كلمة الملف
+                      تشفير أنكليزي
                     </Label>
                     <Input
                       id="file"
                       name="file"
-                      placeholder="ادخل كلمة مرور تشفير الملف"
+                      placeholder="ادخل كلمة مرور التشفير"
+                    />
+                  </div>
+                  <div className="flex gap-x-2">
+                    <Label htmlFor="file_arabic" className="min-w-18">
+                      تشفير عربي
+                    </Label>
+                    <Input
+                      id="file_arabic"
+                      name="file_arabic"
+                      placeholder="ادخل كلمة مرور التشفير"
                     />
                   </div>
                 </>
@@ -227,12 +247,22 @@ const FormPasswordAdd = ({
                     />
                   </div>
                   <div className="flex gap-x-2">
-                    <Label htmlFor="encryption" className="min-w-18">
-                      تشفير
+                    <Label htmlFor="file" className="min-w-18">
+                      تشفير أنكليزي
                     </Label>
                     <Input
-                      id="encryption"
-                      name="encryption"
+                      id="file"
+                      name="file"
+                      placeholder="ادخل كلمة مرور التشفير"
+                    />
+                  </div>
+                  <div className="flex gap-x-2">
+                    <Label htmlFor="file_arabic" className="min-w-18">
+                      تشفير عربي
+                    </Label>
+                    <Input
+                      id="file_arabic"
+                      name="file_arabic"
                       placeholder="ادخل كلمة مرور التشفير"
                     />
                   </div>
