@@ -1,6 +1,7 @@
 import DeleteOrEdit from "@/components/DeleteOrEdit";
 import Loader from "@/components/loader";
 import Nav from "@/components/Nav";
+import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -46,10 +47,14 @@ const TypesAdministrate = () => {
   const [types, setTypes] = useState<any[]>([]);
   const [typeSelector, setTypeSelector] =
     useState<TypeSelector>("device_types");
+  const [end, setEnd] = useState<number>(14);
 
   useEffect(() => {
     const getTypes = async () => {
-      const { data, error } = await supabase.from(typeSelector).select("*");
+      const { data, error } = await supabase
+        .from(typeSelector)
+        .select("*")
+        .range(end - 14, end);
       console.log(data);
       if (error) toast.error("حدث خطأ ما!");
       else setTypes(data ?? []);
@@ -66,7 +71,10 @@ const TypesAdministrate = () => {
           switch (eventType) {
             case "INSERT": {
               const data = newData;
-              setTypes((prev: any) => [...prev, data]);
+              setTypes((prev: any) => {
+                if (prev.length < 15) return [...prev, data];
+                else return prev;
+              });
               break;
             }
             case "UPDATE": {
@@ -90,7 +98,7 @@ const TypesAdministrate = () => {
     return () => {
       channel.unsubscribe();
     };
-  }, [typeSelector]);
+  }, [typeSelector, end]);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -134,9 +142,12 @@ const TypesAdministrate = () => {
     e.preventDefault();
     setLoading(true);
     const { data, error } = await supabase
-      .from("device_types")
+      .from(typeSelector)
       .select("*")
-      .textSearch("type", search);
+      .textSearch(
+        typeSelector == "cpus" ? "name" : "type",
+        search.trim().split(/\s+/).join(" & ")
+      );
     setTypes(data ?? []);
     console.log("ak2", data);
     if (error) toast.error("شيء ما خاطىء!");
@@ -145,7 +156,7 @@ const TypesAdministrate = () => {
   };
 
   return (
-    <div className="w-screen h-screen">
+    <div className="flex flex-col h-screen">
       <Nav>
         <form className="flex gap-x-1 pr-35" onSubmit={handleSearch}>
           <Input
@@ -215,7 +226,7 @@ const TypesAdministrate = () => {
           </Dialog>
         </div>
       </Nav>
-      <div className="p-3">
+      <div className="flex-1 overflow-y-auto relative">
         {load && <Loader />}
         {!load && (
           <Table>
@@ -289,6 +300,13 @@ const TypesAdministrate = () => {
           </Table>
         )}
       </div>
+      <Pagination
+        pageNumber={(end - 14) / 15 + 1}
+        nextDisable={false}
+        previousDisable={end - 14 == 0}
+        onNext={() => setEnd(end + 15)}
+        onPrevious={() => setEnd(end - 15)}
+      />
     </div>
   );
 };
