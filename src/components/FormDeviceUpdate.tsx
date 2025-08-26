@@ -152,11 +152,22 @@ const FormDeviceUpdate = ({
             />
           </div>
           <div className="flex gap-x-2">
+            <Label htmlFor="cpu_factory" className="min-w-22">
+              الشركة المصنعة للمعالج
+            </Label>
+            <Input
+              id="cpu_factory"
+              name="cpu_factory"
+              placeholder="ادخل اسم شركة المعالج"
+              defaultValue={device.cpu_factory}
+            />
+          </div>
+          <div className="flex gap-x-2">
             <div className="flex gap-x-2">
               <Label htmlFor="cpu_id" className="text-nowrap min-w-22">
-                اسم المعالج
+                فئة المعالج
               </Label>
-              <Select name="cpu_id" defaultValue={device?.cpu?.id}>
+              <Select name="cpu_id" defaultValue={device?.cpus?.id}>
                 <SelectTrigger className="w-[180px] ">
                   <SelectValue placeholder="اختر المعالج" />
                 </SelectTrigger>
@@ -196,24 +207,32 @@ const FormDeviceUpdate = ({
                     <SelectLabel>أنواع الرام</SelectLabel>
                     {ramType.map((ele) => (
                       <SelectItem key={ele} value={ele}>
-                        {ele}
+                        {ele.toUpperCase()}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-x-2">
-              <Label htmlFor="ram" className="text-nowrap  min-w-22">
+            <div className="flex gap-x-2 items-center">
+              <Label htmlFor="ram" className="text-nowrap min-w-22">
                 حجم الرام
               </Label>
-              <Input
-                id="ram"
-                name="ram"
-                type="number"
-                placeholder="ادخل حجم الرام"
-                defaultValue={device.ram}
-              />
+              <div className="relative w-full max-w-xs">
+                <Input
+                  id="ram"
+                  name="ram"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="ادخل حجم الرام"
+                  defaultValue={device.ram}
+                  className="pr-10"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                  GB
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex gap-x-2">
@@ -248,22 +267,35 @@ const FormDeviceUpdate = ({
             </Popover>
           </div>
           <div className="flex gap-x-2">
-            <Label className="min-w-22">الحالة</Label>
-            <Select name="status" defaultValue={device.status}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="اختر الحالة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>الحالة</SelectLabel>
-                  {deviceStatus.map((ele) => (
-                    <SelectItem key={ele} value={ele}>
-                      {ele}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-x-2">
+              <Label className="min-w-22">الحالة</Label>
+              <Select name="status" defaultValue={device.status}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="اختر الحالة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>الحالة</SelectLabel>
+                    {deviceStatus.map((ele) => (
+                      <SelectItem key={ele} value={ele}>
+                        {ele}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-x-2">
+              <Label htmlFor="note" className="text-nowrap  min-w-22">
+                ملاحظة
+              </Label>
+              <Input
+                id="note"
+                name="note"
+                placeholder="ادخل ملاحظتك"
+                defaultValue={device.note}
+              />
+            </div>
           </div>
           <div className="flex gap-x-2">
             <Label htmlFor="brother_name" className="min-w-22">
@@ -277,26 +309,52 @@ const FormDeviceUpdate = ({
             />
           </div>
           <div className="flex gap-x-2">
-            <Label htmlFor="entity" className="min-w-22">
-              الجهة
-            </Label>
-            <Input
-              id="entity"
-              name="entity"
-              placeholder="ادخل الجهة"
-              defaultValue={device.entity}
-            />
+            <div className="flex gap-x-2">
+              <Label htmlFor="entity" className="min-w-22">
+                الجهة الرئيسية
+              </Label>
+              <Input
+                id="entity"
+                name="entity"
+                placeholder="ادخل الجهة الرئيسية"
+                defaultValue={device.entity}
+              />
+            </div>
+            <div className="flex gap-x-2">
+              <Label htmlFor="sub_entity" className="min-w-22">
+                الجهة الفرعية
+              </Label>
+              <Input
+                id="sub_entity"
+                name="sub_entity"
+                placeholder="ادخل الجهة الفرعية"
+                defaultValue={device.sub_entity}
+              />
+            </div>
           </div>
           <div className="flex gap-x-2">
-            <Label htmlFor="contact_number" className="min-w-22">
-              رقم التواصل
-            </Label>
-            <Input
-              id="contact_number"
-              name="contact_number"
-              placeholder="ادخل رقم التواصل"
-              defaultValue={device.contact_number}
-            />
+            <div className="flex gap-x-2">
+              <Label htmlFor="contact_number" className="min-w-22">
+                رقم التواصل
+              </Label>
+              <Input
+                id="contact_number"
+                name="contact_number"
+                placeholder="ادخل رقم التواصل"
+                defaultValue={device.contact_number}
+              />
+            </div>
+            <div className="flex gap-x-2">
+              <Label htmlFor="username" className="min-w-22">
+                معرف الأخ
+              </Label>
+              <Input
+                id="username"
+                name="username"
+                placeholder="ادخل معرف الأخ"
+                defaultValue={device.username}
+              />
+            </div>
           </div>
           <div className="flex gap-x-2">
             <div className="flex gap-x-2">
