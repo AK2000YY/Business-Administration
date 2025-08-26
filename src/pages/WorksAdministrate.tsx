@@ -39,7 +39,7 @@ const WorksAdministrate = () => {
     setLoad(true);
     const { data, error } = await supabase
       .from("jobs")
-      .select("*, device_types(*), passwords(*)")
+      .select("*, device_types(*), passwords(*), cpus(*)")
       .order("created_at", { ascending: true })
       .range(end - 14, end);
     console.log(data);
@@ -68,7 +68,7 @@ const WorksAdministrate = () => {
             case "INSERT": {
               const { data } = await supabase
                 .from("jobs")
-                .select("*, device_types(*), passwords(*)")
+                .select("*, device_types(*), passwords(*), cpus(*)")
                 .eq("id", newData.id)
                 .single();
               setWorks((prev) => {
@@ -80,7 +80,7 @@ const WorksAdministrate = () => {
             case "UPDATE": {
               const { data } = await supabase
                 .from("jobs")
-                .select("*, device_types(*), passwords(*)")
+                .select("*, device_types(*), passwords(*), cpus(*)")
                 .eq("id", newData.id)
                 .single();
 
@@ -150,6 +150,8 @@ const WorksAdministrate = () => {
     }
     delete data.password_type;
     delete data.password_num;
+
+    if (arrivalDate) data["recieve_data"] = arrivalDate;
 
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
@@ -236,6 +238,8 @@ const WorksAdministrate = () => {
     delete data.password_type;
     delete data.password_num;
 
+    if (arrivalDate) data["recieve_data"] = arrivalDate;
+
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
     const file = fileInput?.files?.[0];
@@ -283,7 +287,7 @@ const WorksAdministrate = () => {
     if (search.length != 0) {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*, device_types(*), passwords(*)")
+        .select("*, device_types(*), passwords(*), cpus(*)")
         .textSearch("tsv", search.trim().split(/\s+/).join(" & "));
       setWorks(data ?? []);
       setLoad(false);
@@ -345,60 +349,76 @@ const WorksAdministrate = () => {
             <TableCaption>تصفح قائمة الأنواع</TableCaption>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-1/17">الرقم التسلسلي</TableHead>
-                <TableHead className="w-1/17">الشركة المصنعة</TableHead>
-                <TableHead className="w-1/17">نوع الجهاز</TableHead>
-                <TableHead className="w-1/17">الموديل</TableHead>
-                <TableHead className="w-1/17">اسم المعالج</TableHead>
-                <TableHead className="w-1/17">جيل المعالج</TableHead>
-                <TableHead className="w-1/17">نوع الرام</TableHead>
-                <TableHead className="w-1/17">حجم الرام</TableHead>
-                <TableHead className="w-1/17">تاريخ الوصول</TableHead>
-                <TableHead className="w-1/17">الحالة</TableHead>
-                <TableHead className="w-1/17">اسم الأخ</TableHead>
-                <TableHead className="w-1/17">الجهة</TableHead>
-                <TableHead className="w-1/17">رقم التواصل</TableHead>
-                <TableHead className="w-1/17">كرت الشبكة</TableHead>
-                <TableHead className="w-1/17">الملاحظات</TableHead>
-                <TableHead className="w-1/17">كلمة المرور</TableHead>
-                <TableHead className="w-1/17">المرفقات</TableHead>
-                <TableHead className="w-1/17">حذف تعديل تخديم</TableHead>
+                <TableHead className="w-1/20">الرقم التسلسلي</TableHead>
+                <TableHead className="w-1/20">الشركة المصنعة</TableHead>
+                <TableHead className="w-1/20">نوع الجهاز</TableHead>
+                <TableHead className="w-1/20">الموديل</TableHead>
+                <TableHead className="w-1/20">الشركة المصنعة للمعالج</TableHead>
+                <TableHead className="w-1/20">اسم المعالج</TableHead>
+                <TableHead className="w-1/20">جيل المعالج</TableHead>
+                <TableHead className="w-1/20">نوع الرام</TableHead>
+                <TableHead className="w-1/20">حجم الرام</TableHead>
+                <TableHead className="w-1/20">تاريخ الوصول</TableHead>
+                <TableHead className="w-1/20">الحالة</TableHead>
+                <TableHead className="w-1/20">ملاحظة</TableHead>
+                <TableHead className="w-1/20">اسم الأخ</TableHead>
+                <TableHead className="w-1/20">الجهة الرئيسية</TableHead>
+                <TableHead className="w-1/20">الجهة الفرعية</TableHead>
+                <TableHead className="w-1/20">رقم التواصل</TableHead>
+                <TableHead className="w-1/20">معرف الاخ</TableHead>
+                <TableHead className="w-1/20">كرت الشبكة</TableHead>
+                <TableHead className="w-1/20">كلمة المرور</TableHead>
+                <TableHead className="w-1/20">المرفقات</TableHead>
+                <TableHead className="w-1/20">حذف تعديل تخديم</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {works.map((ele) => (
                 <TableRow key={ele.id} className="bg-[#988561]/30">
-                  <TableCell className="w-1/17">{ele.serial}</TableCell>
-                  <TableCell className="w-1/17">{ele.company ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">{ele.serial}</TableCell>
+                  <TableCell className="w-1/20">{ele.company ?? ""}</TableCell>
+                  <TableCell className="w-1/20">
                     {ele.device_types.type}
                   </TableCell>
-                  <TableCell className="w-1/17">{ele.model ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
-                    {ele.cpu?.name ?? ""}
+                  <TableCell className="w-1/20">{ele.model ?? ""}</TableCell>
+                  <TableCell className="w-1/20">
+                    {ele.cpu_factory ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">{ele.cpu_name}</TableCell>
-                  <TableCell className="w-1/17">{ele.ram_type ?? ""}</TableCell>
-                  <TableCell className="w-1/17">{ele.ram ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
-                    {ele.recieve_data ?? ""}
+                  <TableCell className="w-1/20">
+                    {ele.cpus?.name ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">{ele.status ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">{ele.cpu_name}</TableCell>
+                  <TableCell className="w-1/20">
+                    {ele.ram_type?.toUpperCase() ?? ""}
+                  </TableCell>
+                  <TableCell className="w-1/20">
+                    {(ele.ram ?? 0) + "GB"}
+                  </TableCell>
+                  <TableCell className="w-1/20">
+                    {ele.recieve_data
+                      ? new Date(ele.recieve_data).toISOString().split("T")[0]
+                      : ""}
+                  </TableCell>
+                  <TableCell className="w-1/20">{ele.status ?? ""}</TableCell>
+                  <TableCell className="w-1/20">{ele.note ?? ""}</TableCell>
+                  <TableCell className="w-1/20">
                     {ele.brother_name ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">{ele.entity ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">{ele.entity ?? ""}</TableCell>
+                  <TableCell className="w-1/20">
+                    {ele.sub_entity ?? ""}
+                  </TableCell>
+                  <TableCell className="w-1/20">
                     {ele.contact_number ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">{ele.username ?? ""}</TableCell>
+                  <TableCell className="w-1/20">
                     {ele.wifi_card ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">{ele.notes ?? ""}</TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">
                     {ele.passwords?.number ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">
                     {ele.attachment ? (
                       <Download
                         className="m-auto cursor-pointer"
@@ -408,7 +428,7 @@ const WorksAdministrate = () => {
                       ""
                     )}
                   </TableCell>
-                  <TableCell className="w-1/17">
+                  <TableCell className="w-1/20">
                     <DeleteOrEdit ele={ele}>
                       <Dialog>
                         <DialogTrigger asChild>
