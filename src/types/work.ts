@@ -19,10 +19,13 @@ type Work = {
   cpu_name?: string;
   model?: string;
   company?: string;
-  cpu?: Cpu;
+  cpus?: Cpu;
   ram_type?: RamType;
-  notes?: string;
   passwords?: Password;
+  cpu_factory?: string;
+  note?: string;
+  username?: string;
+  sub_entity?: string;
 };
 
 export { type Work };
