@@ -4,8 +4,16 @@ import FormDeviceUpdate from "@/components/FormDeviceUpdate";
 import Loader from "@/components/loader";
 import Nav from "@/components/Nav";
 import Pagination from "@/components/Pagination";
+import ShowPasswords from "@/components/ShowPasswords";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -155,27 +163,32 @@ const WorksAdministrate = () => {
 
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    let filePath: string | null = null;
+    const files = fileInput?.files;
+    let filePaths: string[] = [];
 
-    if (file) {
-      filePath = `${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const filePath = `${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("attachments")
+          .upload(filePath, file);
 
-      if (uploadError) {
-        toast.error("فشل في رفع المرفق!");
-        return;
+        if (uploadError) {
+          toast.error(`فشل في رفع الملف: ${file.name}`);
+          continue;
+        }
+
+        filePaths.push(filePath);
       }
     }
 
-    if (!filePath) {
+    if (filePaths.length == 0) {
       data["attachment"] = null;
     } else {
-      data["attachment"] = filePath;
+      data["attachment"] = filePaths;
     }
-
+    console.log(data["attachment"]);
     const { error } = await supabase.from("jobs").insert([data]);
     console.log(error);
     if (error) toast.error("حدث خطأ ما!");
@@ -242,34 +255,30 @@ const WorksAdministrate = () => {
 
     //file  uploade
     const fileInput = form.elements.namedItem("attachment") as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    let filePath: string | null = null;
+    const files = fileInput?.files;
+    let filePaths: string[] = [];
 
-    if (file && device.attachment) {
-      const { error } = await supabase.storage
-        .from("attachments")
-        .remove([device.attachment]);
-      if (error) {
-        toast.error("حدث خطأ اثناء حذف الملف القديم");
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const filePath = `${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("attachments")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          toast.error(`فشل في رفع الملف: ${file.name}`);
+          continue;
+        }
+
+        filePaths.push(filePath);
       }
     }
 
-    if (file) {
-      filePath = `${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
-
-      if (uploadError) {
-        toast.error("فشل في رفع المرفق!");
-        return;
-      }
-    }
-
-    if (!filePath) {
+    if (filePaths.length == 0) {
       data["attachment"] = null;
     } else {
-      data["attachment"] = filePath;
+      data["attachment"] = filePaths;
     }
 
     const { error } = await supabase
@@ -416,16 +425,44 @@ const WorksAdministrate = () => {
                     {ele.wifi_card ?? ""}
                   </TableCell>
                   <TableCell className="w-1/20">
-                    {ele.passwords?.number ?? ""}
+                    {ele.passwords && (
+                      <Dialog>
+                        <DialogTrigger className="text-blue-700 cursor-pointer">
+                          {ele.passwords?.number ?? ""}
+                        </DialogTrigger>
+                        <ShowPasswords passwords={ele.passwords} />
+                      </Dialog>
+                    )}
                   </TableCell>
                   <TableCell className="w-1/20">
-                    {ele.attachment ? (
-                      <Download
-                        className="m-auto cursor-pointer"
-                        onClick={() => handleDownload(ele.attachment!)}
-                      />
-                    ) : (
-                      ""
+                    {ele.attachment && ele.attachment.length && (
+                      <Dialog>
+                        <DialogTrigger>
+                          <Download className="m-auto cursor-pointer" />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>المرفقات</DialogTitle>
+                            <DialogDescription>
+                              اضفط على رمز التحميل لتحميل المرفق
+                            </DialogDescription>
+                          </DialogHeader>
+                          {ele.attachment?.map((attach) => (
+                            <div
+                              key={attach}
+                              className="w-full pt-1 flex flex-row-reverse justify-between"
+                            >
+                              <p>{"..." + attach.slice(3)}</p>
+                              <div>
+                                <Download
+                                  className="m-auto cursor-pointer"
+                                  onClick={() => handleDownload(attach)}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </TableCell>
                   <TableCell className="w-1/20">
