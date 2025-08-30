@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { FolderUp } from "lucide-react";
 
 interface FileComponentProps extends InputHTMLAttributes<HTMLInputElement> {
-  fileName?: string;
+  fileName?: string[];
 }
 
 const FileComponent: FC<FileComponentProps> = ({
@@ -12,19 +12,18 @@ const FileComponent: FC<FileComponentProps> = ({
   className,
   ...props
 }) => {
-  const [fileUpload, setFileUpload] = useState<string>("");
+  const [fileUpload, setFileUpload] = useState<string[]>([]);
 
   useEffect(() => {
-    if (fileName && fileName != "") setFileUpload(fileName);
+    if (fileName && fileName.length > 0) setFileUpload(fileName);
   }, []);
 
   const handleUploade = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      setFileUpload(files[0].name);
-    } else {
-      setFileUpload(""); // إعادة التعيين عند الضغط على Cancel
-    }
+      const names = Array.from(files).map((file) => file.name);
+      setFileUpload(names);
+    } else setFileUpload([]);
   };
 
   return (
@@ -34,15 +33,23 @@ const FileComponent: FC<FileComponentProps> = ({
         type="file"
         name="attach"
         onChange={handleUploade}
+        multiple
         {...props}
       />
       <Button type="button" className="w-22 h-10">
         {fileName ? "غير الملف" : "اختر ملفا"}
         <FolderUp />
       </Button>
-      <p className="w-40 truncate overflow-hidden whitespace-nowrap pr-4">
-        {fileUpload}
-      </p>
+      <div className="flex">
+        {fileUpload.map((ele) => (
+          <p
+            key={ele}
+            className="w-20 truncate overflow-hidden whitespace-nowrap pr-4"
+          >
+            {ele}
+          </p>
+        ))}
+      </div>
     </div>
   );
 };

@@ -90,7 +90,7 @@ const FormDeviceUpdate = ({
   };
 
   return (
-    <DialogContent className="min-w-fit">
+    <DialogContent className="min-w-fit h-[98vh] overflow-y-auto">
       <form onSubmit={onUpdate}>
         <DialogHeader>
           <DialogTitle>تعديل الجهاز</DialogTitle>
