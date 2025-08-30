@@ -13,6 +13,7 @@ type Password = {
   file_arabic?: string;
   is_used: boolean;
   lock: string;
+  created_at: string;
 };
 
 export { type Password, passwordType, type PasswordType };

@@ -8,7 +8,7 @@ type Work = {
   id: string;
   device_types: DeviceType;
   serial: string;
-  attachment?: string;
+  attachment?: string[];
   recieve_data?: string;
   wifi_card?: string;
   status?: DeviceStatus;
