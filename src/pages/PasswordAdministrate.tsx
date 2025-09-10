@@ -1,5 +1,6 @@
 import DeleteOrEdit from "@/components/DeleteOrEdit";
 import FormPasswordAdd from "@/components/FormPasswordAdd";
+import FormPasswordUpdate from "@/components/FormPasswordUpdate";
 import Loader from "@/components/loader";
 import Nav from "@/components/Nav";
 import Pagination from "@/components/Pagination";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import supabase from "@/lib/supabase";
 import type { Password } from "@/types/password";
-import { Plus, Search } from "lucide-react";
+import { Pencil, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -87,13 +88,13 @@ const PasswordAdministrate = () => {
     const formData = new FormData(e.currentTarget);
     let data: any = {};
 
-    const type = formData.get("type")?.toString().trim();
-
     for (const [key, value] of formData.entries()) {
       data[key] = value.toString().trim().length == 0 ? null : value;
-      if (key == "file" && type == "لينيكس") continue;
-      if (!data[key]) {
-        toast.error("احد الحقول المطلوبة فارغة!");
+      if (
+        (key == "ice" || key == "bios") &&
+        (isNaN(Number(value)) || !(Number(value) <= 20 && Number(value) >= 1))
+      ) {
+        toast.error("البيوس او التجميد يجب ان يكون بين 1 و 20!");
         return;
       }
     }
@@ -136,6 +137,32 @@ const PasswordAdministrate = () => {
 
     if (error) toast.error("شيء ما خاطىء");
     else toast.success("تمت الإضافة");
+  };
+
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let data: any = {};
+
+    for (const [key, value] of formData.entries()) {
+      data[key] = value.toString().trim().length == 0 ? null : value;
+      if (
+        (key == "ice" || key == "bios") &&
+        (isNaN(Number(value)) || !(Number(value) <= 20 && Number(value) >= 1))
+      ) {
+        toast.error("البيوس او التجميد يجب ان يكون بين 1 و 20!");
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from("passwords")
+      .update([data])
+      .eq("id", data["id"]);
+
+    if (error) toast.error("شيء ما خاطىء");
+    else toast.success("تم التعديل");
+    console.log(error);
   };
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -196,7 +223,7 @@ const PasswordAdministrate = () => {
                 <TableHead className="w-1/10">البيوس</TableHead>
                 <TableHead className="w-1/10">التجميد</TableHead>
                 <TableHead className="w-1/10">القفل</TableHead>
-                <TableHead className="w-1/10">حذف</TableHead>
+                <TableHead className="w-1/10">تعديل او حذف</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -226,7 +253,19 @@ const PasswordAdministrate = () => {
                     {ele.lock ?? "لايوجد"}
                   </TableCell>
                   <TableCell className="w-1/10">
-                    <DeleteOrEdit ele={ele}></DeleteOrEdit>
+                    <DeleteOrEdit ele={ele}>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className="size-min bg-[#165D4E]">
+                            <Pencil />
+                          </Button>
+                        </DialogTrigger>
+                        <FormPasswordUpdate
+                          password={ele}
+                          onUpdate={handleUpdate}
+                        />
+                      </Dialog>
+                    </DeleteOrEdit>
                   </TableCell>
                 </TableRow>
               ))}
