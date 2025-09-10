@@ -1,3 +1,4 @@
+import CheckFormAdd from "@/components/CheckFormAdd";
 import DeleteOrEdit from "@/components/DeleteOrEdit";
 import FromServiceAdd from "@/components/FormServiceAdd";
 import FormServiceEdit from "@/components/FormServiceEdit";
@@ -17,8 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import supabase from "@/lib/supabase";
+import type { CheckService } from "@/types/check_service";
 import type { Service } from "@/types/service";
-import { Download, Pencil, Plus, Search } from "lucide-react";
+import { BadgeCheck, Download, Pencil, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -36,7 +38,7 @@ const ServicesAdministrate = () => {
       setLoad(true);
       const { data, error } = await supabase
         .from("services")
-        .select("*")
+        .select("*, check_service(*)")
         .eq("job_id", id)
         .range(end - 14, end);
       console.log(data);
@@ -53,7 +55,6 @@ const ServicesAdministrate = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "services" },
         async ({ eventType, old, new: newData }) => {
-          console.log("hiii");
           switch (eventType) {
             case "INSERT": {
               const { data } = await supabase
@@ -71,7 +72,7 @@ const ServicesAdministrate = () => {
             case "UPDATE": {
               const { data } = await supabase
                 .from("services")
-                .select("*")
+                .select("*, check_service(*)")
                 .eq("job_id", id)
                 .eq("id", newData.id)
                 .single();
@@ -94,9 +95,56 @@ const ServicesAdministrate = () => {
       )
       .subscribe();
 
+    const checks = supabase
+      .channel("checks-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "check_service" },
+        async ({ eventType, old, new: newData }) => {
+          switch (eventType) {
+            case "INSERT": {
+              const data: CheckService = newData as CheckService;
+              setServices((prev) =>
+                prev.map((ele) =>
+                  ele.id == data.service_id
+                    ? { ...ele, check_service: data }
+                    : ele
+                )
+              );
+              break;
+            }
+            case "UPDATE": {
+              const data: CheckService = newData as CheckService;
+              setServices((prev) =>
+                prev.map((ele) =>
+                  ele.id == data.service_id
+                    ? { ...ele, check_service: data }
+                    : ele
+                )
+              );
+              break;
+            }
+            case "DELETE": {
+              const data: CheckService = old as CheckService;
+              setServices((prev) =>
+                prev.map((ele) => {
+                  if (ele.check_service && ele.check_service.id == data.id) {
+                    const { check_service, ...rest } = ele;
+                    return rest;
+                  }
+                  return ele;
+                })
+              );
+            }
+          }
+        }
+      )
+      .subscribe();
+
     getServices();
     return () => {
       services.unsubscribe();
+      checks.unsubscribe();
     };
   }, [end]);
 
@@ -137,7 +185,7 @@ const ServicesAdministrate = () => {
     if (!filePath) {
       data["attach"] = null;
     } else {
-      data["attach"] = filePath;
+      data["attach"] = [filePath];
     }
 
     data["job_id"] = id;
@@ -172,11 +220,11 @@ const ServicesAdministrate = () => {
     const file = fileInput?.files?.[0];
     let filePath: string | null = null;
 
-    if (service.attach && file) {
+    if (service.attach && service.attach.length > 0 && file) {
       console.log("done");
       const { error } = await supabase.storage
         .from("attachments")
-        .remove([service.attach]);
+        .remove([service.attach[0]]);
       if (error) {
         console.log("error", error);
         return;
@@ -199,7 +247,7 @@ const ServicesAdministrate = () => {
     if (!filePath) {
       data["attach"] = null;
     } else {
-      data["attach"] = filePath;
+      data["attach"] = [filePath];
     }
 
     data["job_id"] = id;
@@ -211,6 +259,53 @@ const ServicesAdministrate = () => {
     console.log(error);
     if (error) toast.error("حدث خطأ ما!");
     else toast.success("تم التعديل");
+  };
+
+  const handleCheck = async (
+    e: React.FormEvent<HTMLFormElement>,
+    service: Service
+  ) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    let data: any = {};
+    for (const [key, value] of formData.entries()) {
+      data[key] = value;
+      if (!data[key]) {
+        toast.error("أحد الحقول فارغة!");
+        return;
+      }
+    }
+    data["service_id"] = service.id;
+    const { error } = await supabase.from("check_service").insert([data]);
+    console.log(error);
+    if (error) toast.error("حدث خطأ ما!");
+    else toast.success("تم اضافة التدقيق");
+  };
+
+  const handleUpdateCheck = async (
+    e: React.FormEvent<HTMLFormElement>,
+    service: Service
+  ) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    let data: any = {};
+    for (const [key, value] of formData.entries()) {
+      data[key] = value;
+      if (!data[key]) {
+        toast.error("أحد الحقول فارغة!");
+        return;
+      }
+    }
+    data["service_id"] = service.id;
+    const { error } = await supabase
+      .from("check_service")
+      .update([data])
+      .eq("id", service.check_service?.id);
+    console.log(error);
+    if (error) toast.error("حدث خطأ ما!");
+    else toast.success("تم تعديل التدقيق");
   };
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -265,34 +360,48 @@ const ServicesAdministrate = () => {
             <TableCaption>تصفح قائمة الخدمات الخاصة بالجهاز</TableCaption>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-1/6">الحالة</TableHead>
-                <TableHead className="w-1/6">نوع التخديم</TableHead>
-                <TableHead className="w-1/6">المتطلبات</TableHead>
-                <TableHead className="w-1/6">الملاحظات</TableHead>
-                <TableHead className="w-1/6">المرفق</TableHead>
-                <TableHead className="w-1/6">حذف تعديل</TableHead>
+                <TableHead className="w-1/7">الحالة</TableHead>
+                <TableHead className="w-1/7">نوع التخديم</TableHead>
+                <TableHead className="w-1/7">المتطلبات</TableHead>
+                <TableHead className="w-1/7">الملاحظات</TableHead>
+                <TableHead className="w-1/7">المرفق</TableHead>
+                <TableHead className="w-1/7">تم التدقيق</TableHead>
+                <TableHead className="w-1/7">حذف تعديل تدقيق</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {services.map((ele) => (
                 <TableRow key={ele.id} className="bg-[#988561]/30">
-                  <TableCell className="w-1/6">{ele.status}</TableCell>
-                  <TableCell className="w-1/6">{ele.service_type}</TableCell>
-                  <TableCell className="w-1/6">
+                  <TableCell className="w-1/7">{ele.status}</TableCell>
+                  <TableCell className="w-1/7">{ele.service_type}</TableCell>
+                  <TableCell className="w-1/7">
                     {ele.requirements ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/6">{ele.notes ?? ""}</TableCell>
-                  <TableCell className="w-1/6">
-                    {ele.attach ? (
+                  <TableCell className="w-1/7">{ele.notes ?? ""}</TableCell>
+                  <TableCell className="w-1/7">
+                    {ele.attach && ele.attach.length > 0 ? (
                       <Download
                         className="m-auto cursor-pointer"
-                        onClick={() => handleDownload(ele.attach!)}
+                        onClick={() => handleDownload(ele.attach![0])}
                       />
                     ) : (
                       "لايوجد مرفق"
                     )}
                   </TableCell>
-                  <TableCell className="w-1/6">
+                  <TableCell className="w-1/7">
+                    {ele.check_service && (
+                      <Dialog>
+                        <DialogTrigger>
+                          <BadgeCheck />
+                        </DialogTrigger>
+                        <CheckFormAdd
+                          check={ele.check_service}
+                          onUpdate={(e) => handleUpdateCheck(e, ele)}
+                        />
+                      </Dialog>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-1/7">
                     <DeleteOrEdit ele={ele}>
                       <Dialog>
                         <DialogTrigger asChild>
@@ -303,6 +412,26 @@ const ServicesAdministrate = () => {
                         <FormServiceEdit
                           service={ele}
                           onUpdate={(e) => handleUpdate(e, ele)}
+                        />
+                      </Dialog>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="size-min bg-[#165D4E]"
+                            onClick={(e) => {
+                              if (ele.check_service) {
+                                e.preventDefault();
+                                toast.error("الخدمة مدققة بالفعل!");
+                              }
+                            }}
+                          >
+                            <BadgeCheck />
+                          </Button>
+                        </DialogTrigger>
+
+                        <CheckFormAdd
+                          check={ele.check_service}
+                          onAdd={(e) => handleCheck(e, ele)}
                         />
                       </Dialog>
                     </DeleteOrEdit>
