@@ -19,10 +19,17 @@ import { toast } from "sonner";
 import type { Service } from "@/types/service";
 import type { Cpu } from "@/types/cpu";
 import type { Password } from "@/types/password";
+import type { User } from "@/types/user";
 
 type ELemetType = {
   id: string;
-  tableName: "jobs" | "device_types" | "services" | "cpus" | "passwords";
+  tableName:
+    | "jobs"
+    | "device_types"
+    | "services"
+    | "cpus"
+    | "passwords"
+    | "profiles";
   elementName: string;
 };
 
@@ -31,7 +38,7 @@ const DeleteOrEdit = ({
   ele,
 }: {
   children?: ReactNode;
-  ele: Work | DeviceType | Service | Cpu | Password;
+  ele: Work | DeviceType | Service | Cpu | Password | User;
 }) => {
   const [element, setElement] = useState<ELemetType>();
 
@@ -66,6 +73,12 @@ const DeleteOrEdit = ({
         tableName: "cpus",
         elementName: ele.name,
       });
+    else if ("email" in ele)
+      setElement({
+        id: ele.id,
+        tableName: "profiles",
+        elementName: ele.email,
+      });
   }, []);
 
   const handleDelete = async () => {
@@ -84,6 +97,24 @@ const DeleteOrEdit = ({
         .eq("id", element.id);
       if (error) toast.error("حدث خطأ ما!");
       else toast.success("تمت عملية الحذف بنجاح");
+    } else if (element?.tableName == "profiles") {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        console.error("User is not logged in");
+        return;
+      }
+      const { error } = await supabase.functions.invoke("delete-user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: {
+          userId: element.id,
+        },
+      });
+
+      if (error) toast.error("حدث خطأ اثناء الحذف");
+      else toast.success("تم الحذف");
     } else {
       const { error } = await supabase
         .from(element!.tableName)
