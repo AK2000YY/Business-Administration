@@ -99,7 +99,7 @@ const FormServiceEdit = ({
             <Label htmlFor="attach" className="min-w-18">
               المرفق
             </Label>
-            <FileComponent fileName={service.attach} />
+            <FileComponent fileName={service.attach ?? []} multiple={false} />
           </div>
         </div>
         <DialogFooter>

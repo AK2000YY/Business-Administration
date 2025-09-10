@@ -356,7 +356,7 @@ const FormDeviceUpdate = ({
               />
             </div>
           </div>
-          <div className="flex gap-x-2">
+          {/* <div className="flex gap-x-2">
             <div className="flex gap-x-2">
               <Label htmlFor="password_num" className="min-w-22">
                 كلمة المرور
@@ -394,7 +394,7 @@ const FormDeviceUpdate = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </div> */}
           <div className="flex gap-x-2">
             <Label htmlFor="attachment" className="min-w-22">
               المرفق

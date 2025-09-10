@@ -90,7 +90,7 @@ const FromServiceAdd = ({
             <Label htmlFor="attach" className="min-w-18">
               المرفق
             </Label>
-            <FileComponent />
+            <FileComponent multiple={false} />
           </div>
         </div>
         <DialogFooter>
