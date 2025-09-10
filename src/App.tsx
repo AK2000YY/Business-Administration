@@ -10,10 +10,13 @@ import Container from "./components/Container";
 import Loader from "./components/loader";
 import ServicesAdministrate from "./pages/ServicesAdministrate";
 import PasswordAdministrate from "./pages/PasswordAdministrate";
+import { userIsAdmin } from "./permisson/user";
+import UsersAdministarte from "./pages/UsersAdministarte";
 
 const App = () => {
   const [session, setSession] = useState<Session | null>();
   const [load, setLoad] = useState<boolean>(true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,6 +29,11 @@ const App = () => {
       setSession(session);
       setLoad(false);
     });
+    async function getUserRole() {
+      const isAdmin = await userIsAdmin();
+      setIsAdmin(isAdmin);
+    }
+    getUserRole();
     return () => subscription.unsubscribe();
   }, []);
 
@@ -61,6 +69,18 @@ const App = () => {
           path="/passwords"
           element={
             session ? <PasswordAdministrate /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            isAdmin ? (
+              <UsersAdministarte />
+            ) : session ? (
+              <Main />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
       </Routes>
