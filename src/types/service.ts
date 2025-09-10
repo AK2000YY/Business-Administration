@@ -1,3 +1,5 @@
+import type { CheckService } from "./check_service";
+
 // import type { LinuxPassword, WindowPassword } from "./password";
 const serviceStatus = ["سوفت وير"] as const;
 type ServiceStatus = (typeof serviceStatus)[number];
@@ -6,6 +8,8 @@ const serviceType = [
   "عمل كامل ويندوز",
   "عمل كامل لينيكس",
   "صيانة ويندوز او لينيكس",
+  "عمل كامل أو صيانة",
+  "تشفير أو قفل",
 ] as const;
 type ServiceType = (typeof serviceType)[number];
 
@@ -26,7 +30,8 @@ interface Service {
   service_type: ServiceType;
   requirements?: string;
   notes?: string;
-  attach?: string;
+  attach?: string[];
+  check_service?: CheckService;
 }
 
 // const createServiceRefactor = (
