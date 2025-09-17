@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import supabase from "@/lib/supabase";
+import { getUserId } from "@/lib/utils";
 import { type DeviceType } from "@/types/device_type";
 import type { Work } from "@/types/work";
 import { Download, HandHelping, Pencil, Plus, Search } from "lucide-react";
@@ -38,6 +39,7 @@ const WorksAdministrate = () => {
   const [types, setTypes] = useState<DeviceType[]>([]);
   const [load, setLoad] = useState<boolean>(true);
   const [end, setEnd] = useState<number>(14);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
   const [arrivalOpen, setArrivalOpen] = useState(false);
@@ -111,6 +113,9 @@ const WorksAdministrate = () => {
 
     getDeviceTypes();
     getTypes();
+    getUserId((id) => {
+      setUserId(id);
+    });
     return () => {
       deviceChannel.unsubscribe();
     };
@@ -139,8 +144,7 @@ const WorksAdministrate = () => {
       const password = await supabase
         .from("passwords")
         .select("*")
-        .eq("number", data["password_num"])
-        .eq("is_used", true);
+        .eq("number", data["password_num"]);
       if (password.error || password.data.length == 0) {
         toast.error("تأكد من رقم كلمة السر");
         return;
@@ -230,8 +234,7 @@ const WorksAdministrate = () => {
       const password = await supabase
         .from("passwords")
         .select("*")
-        .eq("number", data["password_num"])
-        .eq("is_used", true);
+        .eq("number", data["password_num"]);
       if (password.error || password.data.length == 0) {
         toast.error("تأكد من رقم كلمة السر");
         return;
@@ -466,10 +469,16 @@ const WorksAdministrate = () => {
                     )}
                   </TableCell>
                   <TableCell className="w-1/20">
-                    <DeleteOrEdit ele={ele}>
+                    <DeleteOrEdit
+                      ele={ele}
+                      disable={userId && userId != ele.user_id ? true : false}
+                    >
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
+                            disabled={
+                              userId && userId != ele.user_id ? true : false
+                            }
                             className="size-min bg-[#165D4E]"
                             onClick={() => {
                               setArriavalDate(

@@ -71,24 +71,6 @@ const FormDeviceUpdate = ({
     getCpus();
   }, []);
 
-  const getFirstUnsedPassword = async (value: PasswordType) => {
-    const { data, error } = await supabase
-      .from("passwords")
-      .select("number,jobs ( id )")
-      .is("jobs", null)
-      .eq("type", value)
-      .order("number", { ascending: true })
-      .limit(1);
-
-    console.log(data);
-    if (error) {
-      toast.error("شيء ما خاطئ");
-      console.log(error);
-    } else if (data.length > 0) {
-      setInitialPassword(data[0].number);
-    }
-  };
-
   return (
     <DialogContent className="min-w-fit h-[98vh] overflow-y-auto">
       <form onSubmit={onUpdate}>

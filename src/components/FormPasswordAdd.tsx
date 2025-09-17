@@ -38,45 +38,17 @@ const FormPasswordAdd = ({
 
   useEffect(() => {
     const getFirstUnsedPassword = async () => {
-      // if (formSelector == "لينيكس") {
-      //   const { data, error } = await supabase
-      //     .from("passwords")
-      //     .select("*")
-      //     .eq("type", "لينيكس")
-      //     .eq("is_used", false)
-      //     .order("number", { ascending: true })
-      //     .limit(1);
-      //   if (error) {
-      //     toast.error("شيء ما خاطئ");
-      //   } else {
-      //     setInitialPassword(data[0].number);
-      //   }
-      // } else {
-      //   const { data, error } = await supabase
-      //     .from("passwords")
-      //     .select("*")
-      //     .eq("type", "ويندوز")
-      //     .eq("is_used", false)
-      //     .order("number", { ascending: true })
-      //     .limit(1);
-      //   if (error) {
-      //     toast.error("شيء ما خاطئ");
-      //   } else {
-      //     setInitialPassword(data[0].number);
-      //   }
-      // }
-      const { data, error } = await supabase
-        .from("passwords")
-        .select("*")
-        .eq("type", formSelector)
-        .eq("is_used", false)
-        .order("number", { ascending: true })
-        .limit(1);
+      const user = await supabase.auth.getUser();
+      console.log(user);
+      const { data, error } = await supabase.rpc("get_first_missing", {
+        p_user: user.data.user!.id,
+      });
       if (error) {
-        toast.error("شيء ما خاطئ");
-      } else {
-        setInitialPassword(data[0].number);
+        toast.error("حدث خطأ ما!");
+        return;
       }
+      console.log("hi", data);
+      setInitialPassword(data);
     };
 
     if (formSelector != undefined) getFirstUnsedPassword();

@@ -11,9 +11,9 @@ type Password = {
   system: string;
   file?: string;
   file_arabic?: string;
-  is_used: boolean;
   lock: string;
   created_at: string;
+  user_id: string;
 };
 
 export { type Password, passwordType, type PasswordType };

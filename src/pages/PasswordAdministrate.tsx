@@ -34,7 +34,6 @@ const PasswordAdministrate = () => {
       const { data, error } = await supabase
         .from("passwords")
         .select("*")
-        .neq("is_used", false)
         .range(end - 14, end)
         .order("number");
       console.log(data);
@@ -64,7 +63,6 @@ const PasswordAdministrate = () => {
               setPasswords((prev) =>
                 prev.map((ele) => (ele.id === data.id ? data : ele))
               );
-              setPasswords((prev) => prev.filter((ele) => ele.is_used));
               break;
             }
             case "DELETE": {
@@ -99,37 +97,16 @@ const PasswordAdministrate = () => {
       }
     }
 
-    data["is_used"] = true;
-
     const password = await supabase
       .from("passwords")
       .select("*")
-      .eq("number", data["number"])
-      .eq("is_used", false);
+      .eq("number", data["number"]);
 
     if (password.error) {
       toast.error("شيء ما خاطىء");
       return;
-    } else if (password.data.length == 0) {
-      toast.error("الرقم ليس ضمن المجال المعين");
-      return;
-    } else {
-      if (
-        password.data[0].number != data["number"] ||
-        password.data[0].type != data["type"]
-      ) {
-        toast.error("الرقم ليس ضمن المجال المعين");
-        return;
-      }
-    }
-
-    const { error: deleteError } = await supabase
-      .from("passwords")
-      .delete()
-      .eq("number", data["number"]);
-
-    if (deleteError) {
-      toast.error("شيء ما خاطىء");
+    } else if (password.data.length > 0) {
+      toast.error("الرقم مستخدم");
       return;
     }
 

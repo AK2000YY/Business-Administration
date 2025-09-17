@@ -1,4 +1,5 @@
 import type { CheckService } from "./check_service";
+import type { Work } from "./work";
 
 // import type { LinuxPassword, WindowPassword } from "./password";
 const serviceStatus = ["سوفت وير"] as const;
@@ -32,6 +33,9 @@ interface Service {
   notes?: string;
   attach?: string[];
   check_service?: CheckService;
+  jobs: Work;
+  user_id: string;
+  worker: string;
 }
 
 // const createServiceRefactor = (

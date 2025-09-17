@@ -77,6 +77,8 @@ const FormDeviceAdd = ({
         console.log(error);
       } else if (data.length > 0) {
         setInitialPassword(data[0].number);
+      } else {
+        toast.error("لا يوجد كلمات مرور");
       }
     };
     if (!formSelector) getCpus();

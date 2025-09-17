@@ -53,7 +53,15 @@ const App = () => {
         />
         <Route
           path="/types"
-          element={session ? <TypesAdministrate /> : <Navigate to="/login" />}
+          element={
+            isAdmin ? (
+              <TypesAdministrate />
+            ) : session ? (
+              <Main />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/works"
@@ -68,7 +76,13 @@ const App = () => {
         <Route
           path="/passwords"
           element={
-            session ? <PasswordAdministrate /> : <Navigate to="/login" />
+            isAdmin ? (
+              <PasswordAdministrate />
+            ) : session ? (
+              <Main />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
         <Route

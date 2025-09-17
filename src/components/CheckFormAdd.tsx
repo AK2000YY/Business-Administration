@@ -39,14 +39,29 @@ const CheckFormAdd = ({
         </DialogHeader>
         <div className="grid gap-4 py-2">
           <div className="grid gap-3">
-            <Label htmlFor="checker">المدقق</Label>
+            <Label htmlFor="desciption">العمل المنجز</Label>
             <Input
-              id="checker"
-              name="checker"
-              placeholder="ادخل اسم المدقق"
-              defaultValue={check?.checker ?? ""}
+              id="desciption"
+              name="desciption"
+              placeholder="ادخل وصف عن العمل المنجز"
+              defaultValue={check?.desciption ?? ""}
             />
           </div>
+          {onUpdate && (
+            <div className="grid gap-3">
+              <Label htmlFor="created_at">تاريخ الانتهاء</Label>
+              <Input
+                disabled
+                id="created_at"
+                name="created_at"
+                defaultValue={
+                  check?.created_at
+                    ? new Date(check.created_at).toISOString().split("T")[0]
+                    : ""
+                }
+              />
+            </div>
+          )}
           <div className="grid gap-3">
             <Label htmlFor="worker">القائم بالعمل</Label>
             <Input
@@ -57,12 +72,12 @@ const CheckFormAdd = ({
             />
           </div>
           <div className="grid gap-3">
-            <Label htmlFor="desciption">الوصف</Label>
+            <Label htmlFor="checker">المدقق</Label>
             <Input
-              id="desciption"
-              name="desciption"
-              placeholder="ادخل وصف عن التخديم"
-              defaultValue={check?.desciption ?? ""}
+              id="checker"
+              name="checker"
+              placeholder="ادخل اسم المدقق"
+              defaultValue={check?.checker ?? ""}
             />
           </div>
         </div>

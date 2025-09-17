@@ -26,6 +26,7 @@ type Work = {
   note?: string;
   username?: string;
   sub_entity?: string;
+  user_id: string;
 };
 
 export { type Work };

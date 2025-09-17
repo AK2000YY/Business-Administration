@@ -36,9 +36,11 @@ type ELemetType = {
 const DeleteOrEdit = ({
   children,
   ele,
+  disable = false,
 }: {
   children?: ReactNode;
   ele: Work | DeviceType | Service | Cpu | Password | User;
+  disable?: boolean;
 }) => {
   const [element, setElement] = useState<ELemetType>();
 
@@ -82,22 +84,7 @@ const DeleteOrEdit = ({
   }, []);
 
   const handleDelete = async () => {
-    if (element?.tableName == "passwords") {
-      const { error: jobError, data } = await supabase
-        .from("jobs")
-        .select("*")
-        .eq("password_id", element.id);
-      if (data?.length != 0 || jobError) {
-        toast.error("الكلمة مرتبطة");
-        return;
-      }
-      const { error } = await supabase
-        .from(element.tableName)
-        .update([{ is_used: false }])
-        .eq("id", element.id);
-      if (error) toast.error("حدث خطأ ما!");
-      else toast.success("تمت عملية الحذف بنجاح");
-    } else if (element?.tableName == "profiles") {
+    if (element?.tableName == "profiles") {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
       if (!token) {
@@ -130,7 +117,7 @@ const DeleteOrEdit = ({
     <div className="flex gap-x-1 justify-center">
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button className="size-min bg-[#165D4E]">
+          <Button disabled={disable} className="size-min bg-[#165D4E]">
             <Trash />
           </Button>
         </AlertDialogTrigger>

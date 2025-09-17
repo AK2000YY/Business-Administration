@@ -18,9 +18,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import supabase from "@/lib/supabase";
+import { getUserId } from "@/lib/utils";
 import type { CheckService } from "@/types/check_service";
 import type { Service } from "@/types/service";
-import { BadgeCheck, Download, Pencil, Plus, Search } from "lucide-react";
+import {
+  BadgeCheck,
+  Download,
+  Pencil,
+  Plus,
+  Printer,
+  Search,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -32,16 +40,18 @@ const ServicesAdministrate = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [load, setLoad] = useState<boolean>(true);
   const [end, setEnd] = useState<number>(14);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const getServices = async () => {
       setLoad(true);
       const { data, error } = await supabase
         .from("services")
-        .select("*, check_service(*)")
+        .select("*, check_service(*), jobs(*,device_types(*))")
         .eq("job_id", id)
         .range(end - 14, end);
       console.log(data);
+      console.log(error);
       if (error) toast.error("حدث خطأ ما!");
       else {
         setServices(data ?? []);
@@ -142,11 +152,176 @@ const ServicesAdministrate = () => {
       .subscribe();
 
     getServices();
+    getUserId((id) => {
+      setUserId(id);
+    });
     return () => {
       services.unsubscribe();
       checks.unsubscribe();
     };
   }, [end]);
+
+  const handlePrint = (service: Service) => {
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html lang="ar" dir="rtl">
+          <head>
+            <style>
+            * {
+              padding: 0;
+              margin: 0;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: sans-serif;
+              padding: 20px;
+            }
+            p {
+              margin: 0;
+            }
+            header {
+              height: 10%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+
+            .title-log {
+              display: flex;
+              flex-direction: column;
+            }
+
+            .arc-h {
+              width: 100%;
+              height: fit-content;
+              padding: 2px 6px;
+              margin-top: 4px;
+              background: rgb(192, 192, 192);
+            }
+            table {
+              width: 100%;
+              border-spacing: -1px;
+            }
+            th {
+              width: 25%;
+              background-color: lightblue;
+              border: 2px solid black;
+              padding: 0;
+              margin: 0;
+            }
+            td {
+              height: 30px;
+              border: 2px solid black;
+              text-align: center;
+            }
+            .tas-h {
+              width: 100%;
+              height: fit-content;
+              padding: 2px 6px;
+              background-color: lightcoral;
+            }
+            .tas-s {
+              width: 100%;
+              height: 80px;
+              border: 2px solid black;
+              padding: 4px;
+            }
+            .h-s {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin: 4px 0px;
+            }
+            .h-s div {
+              height: 80px;
+              border: 2px solid black;
+              padding: 4px;
+              text-align: center;
+            }
+            .m-t {
+              margin-top: 5px;
+            }
+            .wo {
+              background-color: silver;
+            }
+          </style>
+          </head>
+          <body>
+            <header>
+              <div class="title-log">
+                <p>الإدارة العامة</p>
+                <p>القسم التقني</p>
+              </div>
+              <p>استمارة جهاز الحاسوب</p>
+              <p>رقم وصل الاستلام: ......</p>
+            </header>
+            <hr />
+            <div>
+              <header class="arc-h">الأرشيف</header>
+              <table>
+                <thead>
+                  <tr>
+                    <th>الرقم التسلسلي</th>
+                    <th>الجهة</th>
+                    <th>نوع الجهاز</th>
+                    <th>اسم الأخ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>${service.jobs.serial}</td>
+                    <td>${service.jobs.entity ?? ""}</td>
+                    <td>${service.jobs.device_types.type}</td>
+                    <td>${service.worker ?? ""}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <header class="tas-h">المهام</header>
+              <div class="tas-s">${service.requirements ?? ""}</div>
+            </div>
+            <div class="h-s">
+              <p>يوم وتاريخ الاستلام: ....................</p>
+              <div>
+                الأرشيف والديوان <br />
+                اسم وتوقيع الأخ
+              </div>
+            </div>
+            <div class="m-t">
+              <header class="tas-h wo">العمل</header>
+              <div class="tas-s"></div>
+            </div>
+            <div class="h-s">
+              <p>يوم وتاريخ الانتهاء من العمل: ....................</p>
+              <div>
+                المسؤول عن العمل <br />
+                اسم وتوقيع الأخ
+              </div>
+            </div>
+            <div class="m-t">
+              <header class="tas-h wo">التدقيق</header>
+              <div class="tas-s"></div>
+            </div>
+            <div class="h-s">
+              <p>يوم وتاريخ الانتهاء من التدقيق: ....................</p>
+              <div>
+                المسؤول عن التدقيق <br />
+                اسم وتوقيع الأخ
+              </div>
+            </div>
+            <script>
+              window.print();
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  };
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -360,13 +535,14 @@ const ServicesAdministrate = () => {
             <TableCaption>تصفح قائمة الخدمات الخاصة بالجهاز</TableCaption>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-1/7">الحالة</TableHead>
-                <TableHead className="w-1/7">نوع التخديم</TableHead>
-                <TableHead className="w-1/7">المتطلبات</TableHead>
-                <TableHead className="w-1/7">الملاحظات</TableHead>
-                <TableHead className="w-1/7">المرفق</TableHead>
-                <TableHead className="w-1/7">تم التدقيق</TableHead>
-                <TableHead className="w-1/7">حذف تعديل تدقيق</TableHead>
+                <TableHead className="w-1/8">الحالة</TableHead>
+                <TableHead className="w-1/8">نوع التخديم</TableHead>
+                <TableHead className="w-1/8">القائم بالعمل</TableHead>
+                <TableHead className="w-1/8">المتطلبات</TableHead>
+                <TableHead className="w-1/8">الملاحظات</TableHead>
+                <TableHead className="w-1/8">المرفق</TableHead>
+                <TableHead className="w-1/8">تم التدقيق</TableHead>
+                <TableHead className="w-1/8">حذف تعديل تدقيق طباعة</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -374,6 +550,7 @@ const ServicesAdministrate = () => {
                 <TableRow key={ele.id} className="bg-[#988561]/30">
                   <TableCell className="w-1/7">{ele.status}</TableCell>
                   <TableCell className="w-1/7">{ele.service_type}</TableCell>
+                  <TableCell className="w-1/7">{ele.worker ?? ""}</TableCell>
                   <TableCell className="w-1/7">
                     {ele.requirements ?? ""}
                   </TableCell>
@@ -402,10 +579,18 @@ const ServicesAdministrate = () => {
                     )}
                   </TableCell>
                   <TableCell className="w-1/7">
-                    <DeleteOrEdit ele={ele}>
+                    <DeleteOrEdit
+                      ele={ele}
+                      disable={userId && userId != ele.user_id ? true : false}
+                    >
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button className="size-min bg-[#165D4E]">
+                          <Button
+                            disabled={
+                              userId && userId != ele.user_id ? true : false
+                            }
+                            className="size-min bg-[#165D4E]"
+                          >
                             <Pencil />
                           </Button>
                         </DialogTrigger>
@@ -417,6 +602,9 @@ const ServicesAdministrate = () => {
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
+                            disabled={
+                              userId && userId != ele.user_id ? true : false
+                            }
                             className="size-min bg-[#165D4E]"
                             onClick={(e) => {
                               if (ele.check_service) {
@@ -434,6 +622,12 @@ const ServicesAdministrate = () => {
                           onAdd={(e) => handleCheck(e, ele)}
                         />
                       </Dialog>
+                      <Button
+                        className="size-min bg-[#165D4E]"
+                        onClick={() => handlePrint(ele)}
+                      >
+                        <Printer />
+                      </Button>
                     </DeleteOrEdit>
                   </TableCell>
                 </TableRow>
