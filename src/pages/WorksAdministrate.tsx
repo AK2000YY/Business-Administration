@@ -61,8 +61,10 @@ const WorksAdministrate = () => {
   };
 
   useEffect(() => {
+    let ignore = false;
     const getDeviceTypes = async () => {
       const { data, error } = await supabase.from("device_types").select("*");
+      if (ignore) return;
       if (error) toast.error("حدث خطأ ما!");
       else setTypes(data ?? []);
     };
@@ -118,6 +120,7 @@ const WorksAdministrate = () => {
     });
     return () => {
       deviceChannel.unsubscribe();
+      ignore = true;
     };
   }, [end]);
 

@@ -30,6 +30,7 @@ const PasswordAdministrate = () => {
   const [dialogKey, setDialogKey] = useState<number>(0);
 
   useEffect(() => {
+    let ignore = false;
     const getTypes = async () => {
       const { data, error } = await supabase
         .from("passwords")
@@ -37,6 +38,7 @@ const PasswordAdministrate = () => {
         .range(end - 14, end)
         .order("number");
       console.log(data);
+      if (ignore) return;
       if (error) toast.error("حدث خطأ ما!");
       else setPasswords(data ?? []);
       setLoading(false);
@@ -78,6 +80,7 @@ const PasswordAdministrate = () => {
     getTypes();
     return () => {
       channel.unsubscribe();
+      ignore = true;
     };
   }, [end]);
 

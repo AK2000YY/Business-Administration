@@ -50,12 +50,14 @@ const TypesAdministrate = () => {
   const [end, setEnd] = useState<number>(14);
 
   useEffect(() => {
+    let ignore = false;
     const getTypes = async () => {
       const { data, error } = await supabase
         .from(typeSelector)
         .select("*")
         .range(end - 14, end);
       console.log(data);
+      if (ignore) return;
       if (error) toast.error("حدث خطأ ما!");
       else setTypes(data ?? []);
       setLoading(false);
@@ -97,6 +99,7 @@ const TypesAdministrate = () => {
     getTypes();
     return () => {
       channel.unsubscribe();
+      ignore = true;
     };
   }, [typeSelector, end]);
 

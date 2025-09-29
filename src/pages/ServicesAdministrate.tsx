@@ -43,6 +43,7 @@ const ServicesAdministrate = () => {
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    let ignore = false;
     const getServices = async () => {
       setLoad(true);
       const { data, error } = await supabase
@@ -52,6 +53,7 @@ const ServicesAdministrate = () => {
         .range(end - 14, end);
       console.log(data);
       console.log(error);
+      if (ignore) return;
       if (error) toast.error("حدث خطأ ما!");
       else {
         setServices(data ?? []);
@@ -158,6 +160,7 @@ const ServicesAdministrate = () => {
     return () => {
       services.unsubscribe();
       checks.unsubscribe();
+      ignore = true;
     };
   }, [end]);
 
@@ -247,13 +250,22 @@ const ServicesAdministrate = () => {
             .wo {
               background-color: silver;
             }
+            .ass {
+              border: 2px solid black;
+              margin-bottom: 4px;
+              padding: 4px;
+            }
+            .ass-s {
+              border-top: 2px solid black;
+              padding: 4px;
+              height: 40px;
+            }
           </style>
           </head>
           <body>
             <header>
               <div class="title-log">
-                <p>الإدارة العامة</p>
-                <p>القسم التقني</p>
+                <p>الدعم الفني</p>
               </div>
               <p>استمارة جهاز الحاسوب</p>
               <p>رقم وصل الاستلام: ......</p>
@@ -280,9 +292,13 @@ const ServicesAdministrate = () => {
                 </tbody>
               </table>
             </div>
+            <div class="ass">
+              <div>الملحقات:</div>
+              <div class="ass-s">${service.accessories}</div>
+            </div>
             <div>
               <header class="tas-h">المهام</header>
-              <div class="tas-s">${service.requirements ?? ""}</div>
+              <div class="tas-s">${service.service_type}: </div>
             </div>
             <div class="h-s">
               <p>يوم وتاريخ الاستلام: ....................</p>
@@ -535,27 +551,31 @@ const ServicesAdministrate = () => {
             <TableCaption>تصفح قائمة الخدمات الخاصة بالجهاز</TableCaption>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-1/8">الحالة</TableHead>
-                <TableHead className="w-1/8">نوع التخديم</TableHead>
-                <TableHead className="w-1/8">القائم بالعمل</TableHead>
-                <TableHead className="w-1/8">المتطلبات</TableHead>
-                <TableHead className="w-1/8">الملاحظات</TableHead>
-                <TableHead className="w-1/8">المرفق</TableHead>
-                <TableHead className="w-1/8">تم التدقيق</TableHead>
-                <TableHead className="w-1/8">حذف تعديل تدقيق طباعة</TableHead>
+                <TableHead className="w-1/9">الحالة</TableHead>
+                <TableHead className="w-1/9">نوع التخديم</TableHead>
+                <TableHead className="w-1/9">القائم بالعمل</TableHead>
+                <TableHead className="w-1/9">الملحقات</TableHead>
+                <TableHead className="w-1/9">المتطلبات</TableHead>
+                <TableHead className="w-1/9">الملاحظات</TableHead>
+                <TableHead className="w-1/9">المرفق</TableHead>
+                <TableHead className="w-1/9">تم التدقيق</TableHead>
+                <TableHead className="w-1/9">حذف تعديل تدقيق طباعة</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {services.map((ele) => (
                 <TableRow key={ele.id} className="bg-[#988561]/30">
-                  <TableCell className="w-1/7">{ele.status}</TableCell>
-                  <TableCell className="w-1/7">{ele.service_type}</TableCell>
-                  <TableCell className="w-1/7">{ele.worker ?? ""}</TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/9">{ele.status}</TableCell>
+                  <TableCell className="w-1/9">{ele.service_type}</TableCell>
+                  <TableCell className="w-1/9">{ele.worker ?? ""}</TableCell>
+                  <TableCell className="w-1/9">
+                    {ele.accessories ?? ""}
+                  </TableCell>
+                  <TableCell className="w-1/9">
                     {ele.requirements ?? ""}
                   </TableCell>
-                  <TableCell className="w-1/7">{ele.notes ?? ""}</TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/9">{ele.notes ?? ""}</TableCell>
+                  <TableCell className="w-1/9">
                     {ele.attach && ele.attach.length > 0 ? (
                       <Download
                         className="m-auto cursor-pointer"
@@ -565,7 +585,7 @@ const ServicesAdministrate = () => {
                       "لايوجد مرفق"
                     )}
                   </TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/9">
                     {ele.check_service && (
                       <Dialog>
                         <DialogTrigger>
@@ -578,7 +598,7 @@ const ServicesAdministrate = () => {
                       </Dialog>
                     )}
                   </TableCell>
-                  <TableCell className="w-1/7">
+                  <TableCell className="w-1/9">
                     <DeleteOrEdit
                       ele={ele}
                       disable={userId && userId != ele.user_id ? true : false}

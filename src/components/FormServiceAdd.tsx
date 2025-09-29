@@ -77,6 +77,16 @@ const FromServiceAdd = ({
             <Input id="worker" name="worker" placeholder="ادخل ملاحظاتك" />
           </div>
           <div className="flex gap-x-2">
+            <Label htmlFor="accessories" className="min-w-18">
+              الملحقات
+            </Label>
+            <Input
+              id="accessories"
+              name="accessories"
+              placeholder="ادخل ملاحظاتك"
+            />
+          </div>
+          <div className="flex gap-x-2">
             <Label htmlFor="notes" className="min-w-18">
               المتطلبات
             </Label>

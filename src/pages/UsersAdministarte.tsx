@@ -28,6 +28,7 @@ const UsersAdministrate = () => {
   const [end, setEnd] = useState<number>(14);
 
   useEffect(() => {
+    let ignore = false;
     const getUsers = async () => {
       setLoad(true);
       const { data, error } = await supabase
@@ -37,6 +38,7 @@ const UsersAdministrate = () => {
         .neq("role", "ADMIN")
         .range(end - 14, end);
       console.log(data);
+      if (ignore) return;
       if (error) toast.error("حدث خطأ ما!");
       else {
         setUsers(data ?? []);
@@ -80,6 +82,7 @@ const UsersAdministrate = () => {
     getUsers();
     return () => {
       deviceChannel.unsubscribe();
+      ignore = true;
     };
   }, [end]);
 

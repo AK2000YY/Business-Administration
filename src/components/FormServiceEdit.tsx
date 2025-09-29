@@ -77,7 +77,23 @@ const FormServiceEdit = ({
             <Label htmlFor="worker" className="min-w-18">
               القائم بالعمل
             </Label>
-            <Input id="worker" name="worker" placeholder="ادخل ملاحظاتك" />
+            <Input
+              id="worker"
+              name="worker"
+              placeholder="ادخل ملاحظاتك"
+              defaultValue={service.worker}
+            />
+          </div>
+          <div className="flex gap-x-2">
+            <Label htmlFor="accessories" className="min-w-18">
+              الملحقات
+            </Label>
+            <Input
+              id="accessories"
+              name="accessories"
+              placeholder="ادخل ملاحظاتك"
+              defaultValue={service.accessories}
+            />
           </div>
           <div className="flex gap-x-2">
             <Label htmlFor="notes" className="min-w-18">

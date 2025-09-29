@@ -18,22 +18,21 @@ const ShowPasswords = ({ passwords }: { passwords: Password }) => {
           key !== "is_used" &&
           key !== "user_id" &&
           key !== "number" &&
-          key !== "type"
+          key !== "type" &&
+          key !== "file"
       )
       .map(([key, value]) => {
         const label =
           key === "username"
-            ? "المستخدم"
+            ? "كلمة سر المستخدم"
             : key === "bios"
-            ? "البيوس"
+            ? "رقم كلمة سر البيوس"
             : key === "ice"
-            ? "التجميد"
+            ? "رقم كلمة سر التجميد"
             : key === "system"
-            ? "النظام"
-            : key === "file"
-            ? "الملف بالانكليزي"
+            ? "كلمة سر النظام"
             : key === "file_arabic"
-            ? "الملف بالعربي"
+            ? "كلمة سر قفل الملف"
             : "القفل";
 
         return `

@@ -36,6 +36,7 @@ interface Service {
   jobs: Work;
   user_id: string;
   worker: string;
+  accessories?: string;
 }
 
 // const createServiceRefactor = (
